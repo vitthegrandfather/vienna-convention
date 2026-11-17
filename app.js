@@ -829,6 +829,7 @@
     rt.setAttribute("aria-expanded", String(!ui.railCollapsed)); rt.title = t1; rt.setAttribute("aria-label", t1);
     const lt = $("#listToggle"), t2 = ui.listHidden ? "Показати список розділів" : "Сховати список розділів";
     lt.setAttribute("aria-expanded", String(!ui.listHidden)); lt.title = t2; lt.setAttribute("aria-label", t2); lt.classList.toggle("on", !!ui.listHidden);
+    $(".rc-label", rt).textContent = t1; $(".lt-label", lt).textContent = ui.listHidden ? "Показати розділи" : "Сховати розділи"; lt.title = $(".lt-label", lt).textContent; lt.setAttribute("aria-label", t2);
     requestAnimationFrame(fitAll); setTimeout(fitAll, 300);
   }
   function wireLayout() {

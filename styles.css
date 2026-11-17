@@ -764,3 +764,38 @@ input, textarea, select, [contenteditable="true"] { -webkit-user-select: text; u
 @media (pointer: coarse) and (min-width: 961px) { .rail-toggle { width: 44px; height: 44px; right: -22px; } }
 
 @media (max-width: 960px) { .btn.desktop-only, .btn.sm.ic-btn.desktop-only { display: none; } }
+
+/* ряд кнопок: на всю ширину картки (автоматичні бокові відступи стискали його до вмісту) */
+.controls { width: 100%; box-sizing: border-box; }
+@media (max-width: 960px) {
+  .controls { max-width: none; margin-left: 0; margin-right: 0; align-self: stretch; }
+  .controls .btn.ic-btn.big, .controls #mLearned { min-inline-size: 84px; }
+}
+
+/* ===== кнопки згортання: підписані й помітні ===== */
+.rail-collapse { position: relative; display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 14px; margin-bottom: 10px; border-radius: 12px; border: 1px solid var(--line); background: transparent; color: var(--muted); font: 500 14px/1.2 var(--sans); cursor: pointer; text-align: left; }
+.rail-collapse:hover { color: var(--ink); border-color: var(--gold); background: var(--accent-soft); }
+.rail-collapse .ic { width: 18px; height: 18px; flex: none; transition: transform .25s; }
+.rail-collapsed .rail-collapse { justify-content: center; padding: 10px 0; }
+.rail-collapsed .rail-collapse .ic { transform: rotate(180deg); }
+.rail-collapsed .rc-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
+.rail-collapsed .rail-foot { width: 100%; }
+:where(.rail-collapse):focus-visible { outline: 3px solid var(--accent) !important; outline-offset: 3px !important; }
+.btn.sm.desktop-only { display: inline-flex; align-items: center; gap: 8px; width: auto; height: 40px; padding: 0 14px; border-radius: 20px; font: 500 13px/1 var(--sans); color: var(--muted); background: transparent; border: 1px solid var(--line); box-shadow: none; }
+.btn.sm.desktop-only:hover { color: var(--ink); border-color: var(--gold); }
+.btn.sm.desktop-only .ic { width: 18px; height: 18px; }
+.btn.sm.desktop-only.on { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+/* телефон: центральна колонка на всю ширину (align-items: start стискав її до вмісту) */
+@media (max-width: 960px) {
+  .btn.sm.desktop-only { display: none; }
+  .study { align-items: stretch; }
+  .study-main { align-self: stretch; width: 100%; max-width: none; }
+}
+
+/* найвужчі телефони (<360 px): компактні кнопки, щоб ряд не виходив за екран */
+@media (max-width: 359px) {
+  .controls { gap: 8px; }
+  .controls .btn.ic-btn:not(.big), .controls #mHard, .controls #mReview, .controls #prev, .controls #next { flex: 0 0 44px; width: 44px; height: 44px; }
+  .controls .btn.ic-btn.big, .controls #mLearned { height: 44px; min-inline-size: 64px; border-radius: 22px; }
+  .controls .btn.ic-btn:not(.big) .ic { width: 20px; height: 20px; }
+}
