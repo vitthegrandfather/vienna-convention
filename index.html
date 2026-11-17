@@ -1,0 +1,255 @@
+﻿<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#e9f1f8" />
+  <title>Віденська конвенція · Lernstudio</title>
+  <script>
+    try {
+      var T = localStorage.getItem("vienna-v2-theme");
+      if (["dark", "light", "wine", "pine", "cocoa", "aurora", "dawn"].indexOf(T) < 0)
+        T = "dark";
+      document.documentElement.dataset.theme = T;
+    } catch (e) {}
+  </script>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='32' fill='%23241b46'/%3E%3Cpath d='M32 9l5.6 13.4 14.4 1.2-11 9.4 3.4 14L32 39.2 19.6 47l3.4-14-11-9.4 14.4-1.2z' fill='%23f6c453'/%3E%3C/svg%3E" />
+  <link rel="preload" href="fonts/cormorant-cyrillic-700.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="fonts/inter-cyrillic.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="styles.css?v=7" />
+</head>
+<body>
+  <canvas id="snow" aria-hidden="true"></canvas>
+  <div class="garland" aria-hidden="true"></div>
+  <div class="drift" aria-hidden="true"></div>
+  <a class="skip" href="#main">До вмісту</a>
+
+  <div class="app">
+    <aside class="rail">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">❄</span>
+        <div>
+          <div class="brand-eyebrow">Мова фаху · 1961</div>
+          <div class="brand-title">Wiener Konvention</div>
+        </div>
+      </div>
+      <nav class="nav" aria-label="Розділи">
+        <button class="nav-btn active" data-view="home"><i aria-hidden="true">◈</i><span>Огляд</span></button>
+        <button class="nav-btn" data-view="articles"><i aria-hidden="true">❖</i><span>Статті</span></button>
+        <button class="nav-btn" data-view="review"><i aria-hidden="true">↻</i><span>Повторення</span><b id="reviewBadge" class="badge" hidden>0</b></button>
+        <button class="nav-btn" data-view="ranking"><i aria-hidden="true">♛</i><span>Рейтинг</span></button>
+      </nav>
+      <div class="rail-foot">
+        <button id="profileBtn" class="profile-btn" aria-label="Профіль і налаштування">
+          <span class="avatar" id="avatar">?</span>
+          <span class="profile-text"><b id="profileName">Гість</b><small id="profileRank">Стажер</small></span>
+        </button>
+      </div>
+    </aside>
+
+    <main id="main" class="main">
+      <!-- ОГЛЯД -->
+      <section class="view active" id="view-home">
+        <header class="hero">
+          <div class="hero-text">
+            <p class="greet" id="greet"></p>
+            <p class="eyebrow">Дедлайн · 1 березня 2027</p>
+            <h1>Віденська конвенція<br />про дипломатичні зносини</h1>
+          </div>
+          <div class="countdown" aria-label="Час до дедлайну" role="timer">
+            <div><strong id="cdDays">000</strong><span>днів</span></div>
+            <div><strong id="cdHours">00</strong><span>годин</span></div>
+            <div><strong id="cdMin">00</strong><span>хвилин</span></div>
+            <div><strong id="cdSec">00</strong><span>секунд</span></div>
+          </div>
+        </header>
+
+        <section class="route" aria-label="Шлях до дедлайну">
+          <div class="route-head"><span>Шлях до 1 березня</span><b id="routeText">—</b></div>
+          <div class="route-bar" role="img" aria-label="Порівняння часу та прогресу">
+            <i class="route-time" id="routeTime"></i>
+            <i class="route-done" id="routeDone"></i>
+          </div>
+        </section>
+
+        <div class="stats">
+          <article class="stat"><span>Вивчено</span><strong><b id="sLearned">0</b><small>/ 27</small></strong></article>
+          <article class="stat"><span>Серія</span><strong><b id="sStreak">0</b><small>днів</small></strong></article>
+          <article class="stat"><span>До повторення</span><strong><b id="sDue">0</b><small>карток</small></strong></article>
+          <article class="stat"><span>Складні</span><strong><b id="sHard">0</b><small>статей</small></strong></article>
+        </div>
+
+        <div class="grid-2">
+          <section class="panel plan">
+            <h2>План на сьогодні</h2>
+            <p class="plan-main" id="planMain">—</p>
+            <p class="muted" id="planSub">—</p>
+            <div class="row"><button class="btn primary" id="startCards">Продовжити →</button><button class="btn" id="startReview">Повторення</button></div>
+          </section>
+          <section class="panel rank">
+            <h2>Дипломатичний ранг</h2>
+            <div class="rank-line"><strong id="rankName">Стажер</strong><span id="rankXp">0 XP</span></div>
+            <div class="bar"><i id="rankBar"></i></div>
+            <p class="muted" id="rankNext">—</p>
+          </section>
+        </div>
+
+        <section class="panel">
+          <h2>Досягнення</h2>
+          <div class="ach" id="achGrid"></div>
+        </section>
+      </section>
+
+      <!-- СТАТТІ -->
+      <section class="view" id="view-articles">
+        <div class="view-head">
+          <h2>Статті</h2>
+          <div class="chips" id="chips" aria-label="Фільтр">
+            <button class="chip active" data-f="all">Усі</button>
+            <button class="chip" data-f="learned">Вивчені</button>
+            <button class="chip" data-f="hard">Складні</button>
+            <button class="chip" data-f="review">Повторити</button>
+            <button class="chip" data-f="todo">Не вивчені</button>
+          </div>
+        </div>
+        <div class="study">
+          <div class="study-main">
+            <div class="card-meta"><span id="cardCount">1 / 27</span><div class="card-tools"><button class="btn sm mobile-only" id="listBtn">Розділи</button><button class="btn sm" id="modeBtn">Одна мова</button><button class="btn sm" id="flip">⇄ Перевернути</button><button class="btn sm" id="mNote">Нотатка</button></div></div>
+            <div class="card-wrap">
+              <div class="card" id="card" role="button" tabindex="0" aria-label="Картка статті. Натисніть, щоб перевернути">
+                <div class="face front"><span class="face-lang" id="frontLang">Українська</span><h3 id="frontTitle"></h3><div class="text" id="frontText"></div></div>
+                <div class="face back"><span class="face-lang" id="backLang">Deutsch</span><h3 id="backTitle"></h3><div class="text" id="backText"></div></div>
+              </div>
+              <div class="empty" id="emptyState" hidden><span aria-hidden="true">❄</span><p>За цим фільтром нічого немає</p><button class="btn" id="resetFilter">Скинути фільтр</button></div>
+            </div>
+            <div class="controls">
+              <button class="btn nav-arrow" id="prev" aria-label="Попередня стаття">←</button>
+              <button class="btn" id="mHard">Складна</button>
+              <button class="btn primary big" id="mLearned">Вивчено</button>
+              <button class="btn" id="mReview">Повторити</button>
+              <button class="btn nav-arrow" id="next" aria-label="Наступна стаття">→</button>
+            </div>
+          </div>
+          <aside class="study-list" id="studyList" aria-label="Усі розділи">
+            <div class="list-head"><span>Усі розділи</span><span><button class="link" id="shuffle">Перемішати</button> <button class="link mobile-only" id="listClose">Закрити</button></span></div>
+            <ol id="artList" class="art-list"></ol>
+          </aside>
+        </div>
+      </section>
+
+      <!-- ПОВТОРЕННЯ -->
+      <section class="view" id="view-review">
+        <div class="view-head"><h2>Повторення</h2><div class="row"><button class="btn" id="clozeBtn" aria-pressed="false">Пропуски</button><button class="btn" id="reviewAll">Повторити всі вивчені</button></div></div>
+        <div id="reviewEmpty" class="empty big" hidden><span aria-hidden="true">❄</span><p>Черга порожня</p></div>
+        <div id="reviewBox" hidden>
+          <div class="card-meta"><span id="rvCount">1 / 1</span></div>
+          <div class="card-wrap"><div class="card" id="rvCard" role="button" tabindex="0" aria-label="Картка повторення">
+            <div class="face front"><span class="face-lang">Українська</span><h3 id="rvFrontTitle"></h3><div class="text" id="rvFrontText"></div></div>
+            <div class="face back"><span class="face-lang">Deutsch</span><h3 id="rvBackTitle"></h3><div class="text" id="rvBackText"></div></div>
+          </div></div>
+          <div class="marks"><button class="btn" id="rvAgain">Ще раз</button><button class="btn primary" id="rvKnow">Пам'ятаю</button></div>
+        </div>
+      </section>
+
+      <!-- РЕЙТИНГ -->
+      <section class="view" id="view-ranking">
+        <div class="view-head"><h2>Рейтинг групи</h2><button class="btn" id="rankRefresh">Оновити</button></div>
+        <section class="panel cs-panel">
+          <h3>Оформлення моєї картки</h3>
+          <div class="cs-chips" id="csChips"></div>
+        </section>
+        <div class="rk-list" id="rankBody"></div>
+      </section>
+
+      <!-- ПРОФІЛЬ -->
+      <section class="view" id="view-profile">
+        <div class="pf">
+          <section class="pf-head">
+            <div class="pf-banner" aria-hidden="true"></div>
+            <div class="pf-me">
+              <span class="avatar xl" id="pfAvatar" role="img" aria-label="Аватарка"></span>
+              <div class="pf-id">
+                <h2 id="pfName">Гість</h2>
+                <p class="pf-motto" id="pfMotto" hidden></p>
+                <div class="rank-line"><strong id="pfRank">Стажер</strong><span id="pfXp">0 XP</span></div>
+                <div class="bar"><i id="pfBar"></i></div>
+                <small class="muted" id="pfNext"></small>
+              </div>
+            </div>
+          </section>
+
+          <div class="pf-col">
+            <section class="panel">
+              <h3>Статистика</h3>
+              <div class="pf-stats" id="pfStats"></div>
+            </section>
+            <section class="panel">
+              <h3>Акаунт</h3>
+              <div id="authBox"></div>
+            </section>
+            <section class="panel">
+              <button class="btn danger" id="resetAll">Скинути весь прогрес</button>
+            </section>
+          </div>
+
+          <div class="pf-col">
+            <section class="panel">
+              <h3>Про мене</h3>
+              <div class="form">
+                <label class="field">Ім'я<input type="text" id="pfNameIn" maxlength="40" placeholder="Як вас звати?" autocomplete="nickname" /></label>
+                <label class="field">Девіз<input type="text" id="pfMottoIn" maxlength="80" placeholder="Наприклад: «Pacta sunt servanda»" /></label>
+              </div>
+              <h4>Аватарка</h4>
+              <div class="av-grid" id="avatarGrid"></div>
+              <div class="row" style="margin-top:12px">
+                <button class="btn" id="avPhotoBtn">Завантажити своє фото</button>
+                <button class="btn" id="avPhotoDel" hidden>Прибрати фото</button>
+                <input type="file" id="avFile" accept="image/*" hidden />
+              </div>
+            </section>
+            <section class="panel">
+              <h3>Картка в рейтингу</h3>
+              <div class="cs-grid" id="csGrid"></div>
+            </section>
+            <section class="panel">
+              <h3>Вигляд</h3>
+              <h4>Тема</h4>
+              <div class="theme-grid" id="themeGrid"></div>
+              <h4>Акцентний колір</h4>
+              <div class="accent-grid" id="accentGrid"></div>
+              <h4>Розмір тексту карток</h4>
+              <div class="seg" id="scaleSeg"><button data-s="0.9">A−</button><button data-s="1">A</button><button data-s="1.15">A+</button><button data-s="1.3">A++</button></div>
+              <div class="setting"><span>Починати з німецької</span><label class="switch"><input type="checkbox" id="deFirst" /><i></i></label></div>
+              <div class="setting"><span>Сніг на фоні</span><label class="switch"><input type="checkbox" id="snowOn" /><i></i></label></div>
+              <div class="setting"><span>Гірлянда зверху</span><label class="switch"><input type="checkbox" id="garlandOn" /><i></i></label></div>
+            </section>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <nav class="bottom-nav" aria-label="Розділи">
+    <button class="nav-btn active" data-view="home"><i aria-hidden="true">◈</i><span>Огляд</span></button>
+    <button class="nav-btn" data-view="articles"><i aria-hidden="true">❖</i><span>Статті</span></button>
+    <button class="nav-btn" data-view="review"><i aria-hidden="true">↻</i><span>Повтор</span></button>
+    <button class="nav-btn" data-view="ranking"><i aria-hidden="true">♛</i><span>Рейтинг</span></button>
+    <button class="nav-btn" data-view="profile"><i aria-hidden="true">☻</i><span>Профіль</span></button>
+  </nav>
+
+  <!-- Нотатка -->
+  <dialog id="noteDlg"><form method="dialog" class="dlg">
+    <h3 id="noteTitle">Нотатка</h3>
+    <textarea id="noteText" rows="6" maxlength="1000" placeholder="Ваші думки, асоціації, питання…"></textarea>
+    <div class="row end"><button class="btn" value="cancel">Скасувати</button><button class="btn primary" id="noteSave" value="ok">Зберегти</button></div>
+  </form></dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.min.js" defer></script>
+  <script src="config.js?v=1"></script>
+  <script src="articles.js?v=1"></script>
+  <script src="avatars/index.js"></script>
+  <script src="app.js?v=7" defer></script>
+</body>
+</html>
