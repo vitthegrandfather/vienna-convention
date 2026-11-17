@@ -821,6 +821,22 @@
   }
 
   /* ---------- boot ---------- */
+  // згортання лівого меню та правого списку розділів (запам'ятовується)
+  function applyLayout() {
+    const R = document.documentElement.classList;
+    R.toggle("rail-collapsed", !!ui.railCollapsed); R.toggle("list-hidden", !!ui.listHidden);
+    const rt = $("#railToggle"), t1 = ui.railCollapsed ? "Показати меню" : "Згорнути меню";
+    rt.setAttribute("aria-expanded", String(!ui.railCollapsed)); rt.title = t1; rt.setAttribute("aria-label", t1);
+    const lt = $("#listToggle"), t2 = ui.listHidden ? "Показати список розділів" : "Сховати список розділів";
+    lt.setAttribute("aria-expanded", String(!ui.listHidden)); lt.title = t2; lt.setAttribute("aria-label", t2); lt.classList.toggle("on", !!ui.listHidden);
+    requestAnimationFrame(fitAll); setTimeout(fitAll, 300);
+  }
+  function wireLayout() {
+    $$(".rail .nav-btn").forEach((b) => { const s = $("span", b); if (s) b.title = s.textContent.trim(); });
+    $("#railToggle").addEventListener("click", () => { ui.railCollapsed = !ui.railCollapsed; saveUi(); applyLayout(); });
+    $("#listToggle").addEventListener("click", () => { ui.listHidden = !ui.listHidden; saveUi(); applyLayout(); });
+    applyLayout();
+  }
   function renderAll() { renderHome(); renderProfile(); applyLook(); if (ui.view === "articles") renderArticles(); if (ui.view === "review") renderReview(); }
   function boot() {
     applyTheme(document.documentElement.dataset.theme || "light"); applyLook();
@@ -828,7 +844,7 @@
     document.fonts?.ready.then(fitAll);
     const syncFolds = () => { const desk = matchMedia("(min-width: 961px)").matches; $$("details.fold").forEach((d) => (d.open = desk || d.hasAttribute("data-open-mobile"))); };
     syncFolds(); matchMedia("(min-width: 961px)").addEventListener("change", syncFolds);
-    paintIcons(); wireNav(); wireArticles(); wireReview(); wireProfile();
+    paintIcons(); wireLayout(); wireNav(); wireArticles(); wireReview(); wireProfile();
     $("#rankRefresh").addEventListener("click", loadBoard);
     $("#uvBack").addEventListener("click", () => show("ranking"));
     if (ui.n != null && byN[ui.n]) { const i = list().indexOf(ui.n); idx = i >= 0 ? i : 0; }
