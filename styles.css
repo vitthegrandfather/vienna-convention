@@ -425,7 +425,7 @@ body::after { content: ""; position: fixed; inset: 0; z-index: 0; pointer-events
 @keyframes bokeh { from { opacity: calc(var(--bokeh-o, .5) * .55); } to { opacity: var(--bokeh-o, .5); } }
 .fx { position: fixed; z-index: 90; pointer-events: none; line-height: 1; text-shadow: 0 0 8px currentColor; }
 @media (max-width: 960px) { .main { padding-top: 46px; } .no-garland .main { padding-top: 22px; } .drift { display: none; } .greet { font-size: 21px; } }
-@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } *::before, *::after { animation: none !important; } #snow { display: none; } }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; } .card, .face { transition: none !important; } *::before, *::after { animation: none !important; } #snow { display: none; } }
 
 /* кнопки-іконки */
 .ic { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; display: block; }
@@ -594,3 +594,91 @@ details.fold[open] > summary { margin-bottom: 14px; }
 button.uv-art { cursor: pointer; text-align: left; font: inherit; color: inherit; width: 100%; transition: transform .12s, border-color .12s, opacity .12s; }
 button.uv-art:hover { opacity: 1; border-color: var(--accent); transform: translateY(-1px); }
 button.uv-art:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; opacity: 1; }
+
+/* ================= тема «Пряник»: яскрава, затишна ================= */
+:root[data-theme="dawn"] {
+  --bg: #fff1d6; --bg2: #ffe3b3; --surface: rgba(255,251,242,.88); --surface-solid: #fffaf0; --ink: #4a2615; --muted: #7d4f33; --line: rgba(160,90,40,.3);
+  --accent: #d2343c; --accent-ink: #fff; --accent-soft: rgba(210,52,60,.12); --ice: #ffc78a; --gold: #c98512; --ok: #2e8b57; --warn: #e0561f;
+  --shadow: 0 10px 28px rgba(140,70,20,.2); --card-front: linear-gradient(160deg,#fffdf6,#ffe9c4); --card-back: linear-gradient(160deg,#fff6e0,#ffd9a1);
+  --glow1: rgba(255,170,90,.55); --glow2: rgba(255,110,120,.35); --drift: rgba(255,255,255,.95); --bokeh-o: .5; --stitch: rgba(176,96,40,.42);
+  --snowcap: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='12'%3E%3Cpath d='M0 0H26V3Q19.5 12 13 3Q6.5 12 0 3Z' fill='white' stroke='%23ecd2ab' stroke-width='1'/%3E%3C/svg%3E");
+}
+/* ===== ряд керування: пряники однієї форми з глазур'ю (замість кульок на гачках) ===== */
+.controls .btn.ic-btn:not(.big)::before, .controls .btn.ic-btn:not(.big)::after { content: none; }
+.controls .btn.ic-btn:not(.big), .controls #mHard, .controls #mReview, .controls #prev, .controls #next {
+  flex: 0 0 58px; width: 58px; height: 58px; border-radius: 18px; padding: 0; position: relative; border: none; color: #fff; transform-origin: 50% 85%;
+  --ck1: #dd8f4a; --ck2: #b3601f;
+  background: radial-gradient(120% 90% at 28% 0%, rgba(255,255,255,.4), transparent 55%), linear-gradient(180deg, var(--ck1), var(--ck2));
+  box-shadow: 0 4px 0 color-mix(in srgb, var(--ck2) 62%, #000), 0 10px 16px rgba(70,25,0,.25);
+  outline: 2px dashed rgba(255,255,255,.8); outline-offset: -6px;
+}
+.controls #mHard { --ck1: #ffb64d; --ck2: #ec7418; } .controls #mReview { --ck1: #62c38d; --ck2: #2e8d5b; }
+.controls .btn.ic-btn:not(.big) .ic { width: 25px; height: 25px; stroke-width: 2.6; filter: drop-shadow(0 1px 0 rgba(0,0,0,.25)); }
+.controls .btn.ic-btn:not(.big):hover { animation: wiggle .5s ease-in-out; }
+@keyframes wiggle { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-5deg); } 75% { transform: rotate(5deg); } }
+.controls .btn.ic-btn:not(.big):active { animation: none; transform: translateY(3px); box-shadow: 0 1px 0 color-mix(in srgb, var(--ck2) 62%, #000), 0 4px 8px rgba(70,25,0,.2); }
+.controls #mHard.on, .controls #mReview.on { box-shadow: 0 4px 0 color-mix(in srgb, var(--ck2) 62%, #000), 0 0 0 3px #fff, 0 0 0 6px var(--ck2); }
+.controls .btn.ic-btn.big, .controls #mLearned { height: 58px; flex: 1.7; border: none; border-radius: 18px; color: #fff; -webkit-mask: none; mask: none;
+  background: radial-gradient(120% 90% at 28% 0%, rgba(255,255,255,.42), transparent 55%), linear-gradient(180deg, #f0605a, #d2343c 55%, #a8222e);
+  box-shadow: 0 4px 0 #7a1620, 0 10px 18px rgba(168,34,46,.35); outline: 2px dashed rgba(255,255,255,.85); outline-offset: -7px; }
+.controls #mLearned:active { transform: translateY(3px); box-shadow: 0 1px 0 #7a1620; }
+.controls #mLearned.done { background: radial-gradient(120% 90% at 28% 0%, rgba(255,255,255,.55), transparent 55%), linear-gradient(180deg, #ffe48f, #f6c453 55%, #d9a126); color: #5a3a05;
+  box-shadow: 0 4px 0 #8a5f0d, 0 10px 18px rgba(217,161,38,.4); outline-color: rgba(110,65,0,.5); border: none; }
+.controls #mLearned .ic { width: 30px; height: 30px; stroke-width: 3.2; filter: drop-shadow(0 1px 0 rgba(0,0,0,.2)); }
+.btn.sm.ic-btn { width: 40px; height: 40px; border-radius: 13px; color: #fff; border: none;
+  background: radial-gradient(120% 90% at 28% 0%, rgba(255,255,255,.4), transparent 55%), linear-gradient(180deg, #dd8f4a, #b3601f);
+  box-shadow: 0 3px 0 #7a3e12, 0 6px 10px rgba(70,25,0,.2); outline: 1.5px dashed rgba(255,255,255,.8); outline-offset: -5px; }
+.btn.sm.ic-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #7a3e12; }
+.btn.sm.ic-btn.on, #mNote.on { background: radial-gradient(120% 90% at 28% 0%, rgba(255,255,255,.5), transparent 55%), linear-gradient(180deg, #ffe48f, #f6c453 55%, #d9a126); color: #5a3a05; box-shadow: 0 3px 0 #8a5f0d, 0 0 14px rgba(246,196,83,.55); }
+@media (max-width: 960px) {
+  .controls .btn.ic-btn:not(.big), .controls #mHard, .controls #mReview, .controls #prev, .controls #next { flex: 0 0 50px; width: 50px; height: 50px; border-radius: 16px; }
+  .controls .btn.ic-btn.big, .controls #mLearned { height: 50px; flex: 1 1 auto; border-radius: 16px; }
+}
+
+/* «Пряник»: світліші теплі панелі, м'яка тепла фактура замість сірої */
+:root[data-theme="dawn"] {
+  --surface: rgba(255,253,248,.95);
+  --noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .62 0 0 0 0 .36 0 0 0 0 .12 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ================= тема «Різдвяна ніч»: темна, різдвяна, за замовчуванням ================= */
+:root[data-theme="xmas"] { color-scheme: dark; }
+:root[data-theme="xmas"] {
+  --bg: #0b1c16; --bg2: #12271f; --surface: rgba(21,52,40,.74); --surface-solid: #173a2d; --ink: #fbf3e4; --muted: #bcd4c6; --line: rgba(255,214,140,.24);
+  --accent: #f4c24f; --accent-ink: #2a1c04; --accent-soft: rgba(244,194,79,.16); --ice: #ffe2a0; --gold: #ffd36b; --ok: #72e3a4; --warn: #ff8f66;
+  --shadow: 0 12px 40px rgba(2,12,8,.6); --card-front: linear-gradient(160deg,#21503f,#143528); --card-back: linear-gradient(160deg,#2a6048,#1a4231);
+  --glow1: rgba(222,60,60,.32); --glow2: rgba(255,196,90,.2); --drift: rgba(255,248,235,.09); --bokeh-o: 1; --stitch: rgba(255,214,140,.4);
+}
+:root[data-theme="xmas"] .hero::after { content: "🎄"; font-size: 110px; opacity: .3; right: 28px; top: 4px; }
+:root[data-theme="xmas"] .controls #prev, :root[data-theme="xmas"] .controls #next, :root[data-theme="xmas"] .btn.sm.ic-btn { --ck1: #3fa974; --ck2: #1b6743; }
+:root[data-theme="xmas"] .btn.sm.ic-btn { background: radial-gradient(120% 90% at 28% 0%, rgba(255,255,255,.4), transparent 55%), linear-gradient(180deg, #3fa974, #1b6743); box-shadow: 0 3px 0 #0f3d27, 0 6px 10px rgba(0,0,0,.3); }
+:root[data-theme="xmas"] .controls #mReview { --ck1: #66b6f0; --ck2: #2b74bb; }
+/* «Пряник»: контраст золотого, зеленого й помаранчевого тексту */
+:root[data-theme="dawn"] { --gold: #a86a00; --ok: #1f7a4a; --warn: #c2410c; }
+/* ================= доступність за аудитом ================= */
+.fold-title { font-family: var(--serif); font-weight: 700; font-size: 22px; letter-spacing: -.01em; line-height: 1.2; }
+.fold-title::before { content: "✦"; color: var(--gold); font-size: .62em; margin-right: .45em; vertical-align: .18em; }
+h1, h2, h3, .fold-title { text-wrap: balance; } p, li { text-wrap: pretty; } body { overflow-wrap: break-word; }
+html { scroll-padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px)); }
+/* видимий фокус навіть там, де «глазур» використовує outline */
+:where(.btn, .chip, .cs-chip, .nav-btn, .link, summary, [role="button"], .av-opt, .theme-card, .accent-dot, .art-list button, .uv-art, .profile-btn):focus-visible { outline: 3px solid var(--accent) !important; outline-offset: 3px !important; }
+.skip:focus { outline: 3px solid var(--accent); }
+/* цілі дотику: щонайменше 44×44 на сенсорних екранах і телефонах */
+@media (pointer: coarse), (max-width: 960px) {
+  :where(.btn, .chip, .cs-chip, details.fold > summary, .link, .art-list button) { min-block-size: 44px; }
+  :where(.btn, .chip, .cs-chip) { min-inline-size: 44px; }
+  .btn.sm.ic-btn { width: 44px; height: 44px; }
+  .link { display: inline-flex; align-items: center; padding-inline: 6px; }
+  .accent-dot { width: 44px; height: 44px; }
+  .switch input { inset: -9px 0; width: 100%; height: calc(100% + 18px); }
+  .bottom-nav { padding-left: max(6px, env(safe-area-inset-left, 0px)); padding-right: max(6px, env(safe-area-inset-right, 0px)); }
+  .main { padding-left: max(14px, env(safe-area-inset-left, 0px)); padding-right: max(14px, env(safe-area-inset-right, 0px)); }
+  .fold-title { font-size: 19px; }
+}
+/* спокійний режим: вимикає всі декоративні анімації (WCAG 2.2.2) */
+.calm *, .calm *::before, .calm *::after { animation: none !important; }
+.calm #snow, .calm .fx { display: none; }
+
+:root[data-theme="light"] { --ok: #1f7a4a; --warn: #b8420f; }
+
+@media (pointer: coarse), (max-width: 960px) { .seg button { min-block-size: 44px; min-inline-size: 52px; } }

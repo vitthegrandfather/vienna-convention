@@ -14,13 +14,14 @@
 
   // теми: [id, назва, темна?, колір фону, колір акценту]
   const THEMES = [
+    ["xmas", "Різдвяна ніч", true, "#0b1c16", "#f4c24f"],
+    ["dawn", "Пряник", false, "#fff1d6", "#d2343c"],
     ["dark", "Затишна ніч", true, "#130f26", "#f6c453"],
     ["light", "Іній", false, "#eef2fa", "#c8323f"],
     ["wine", "Глінтвейн", true, "#1a0c14", "#ffc27a"],
     ["pine", "Ялинка", true, "#0c1a12", "#f2c75c"],
     ["cocoa", "Какао", true, "#1c120d", "#f2b97a"],
     ["aurora", "Полярне сяйво", true, "#06161a", "#7cf5d0"],
-    ["dawn", "Пряник", false, "#fbf1e2", "#b5651d"],
   ];
   const DARK_THEMES = new Set(THEMES.filter((t) => t[2]).map((t) => t[0]));
   const ACCENTS = [[null, "Із теми"], ["#1fb5b0", "Бірюза"], ["#2fa56f", "Смарагд"], ["#8a79e6", "Лаванда"], ["#e0678a", "Троянда"], ["#d9962b", "Бурштин"], ["#e8704f", "Корал"], ["#64748b", "Графіт"]];
@@ -42,7 +43,7 @@
   const blank = () => ({
     learned: [], hard: [], review: [], notes: {}, learnedAt: {}, nextReview: {}, reviewLevel: {},
     studyDates: [], reviewsDone: 0, ach: [], name: "", germanFirst: false, snow: null, updatedAt: 0,
-    motto: "", avatar: { kind: "letter" }, accent: null, textScale: 1, theme: null, created: 0, cardStyle: "frost", garland: true, flags: [],
+    motto: "", avatar: { kind: "letter" }, accent: null, textScale: 1, theme: null, created: 0, cardStyle: "frost", garland: true, flags: [], calm: false,
   });
   function mergeStates(local, remote) {
     const remoteNewer = (remote.updatedAt || 0) > (local.updatedAt || 0);
@@ -56,7 +57,7 @@
     s.name = local.name || remote.name; s.snow = local.snow; s.germanFirst = local.germanFirst;
     s.motto = local.motto || remote.motto;
     s.avatar = local.avatar.kind !== "letter" ? local.avatar : remote.avatar;
-    s.accent = local.accent; s.textScale = local.textScale; s.theme = local.theme; s.cardStyle = local.cardStyle; s.garland = local.garland;
+    s.accent = local.accent; s.textScale = local.textScale; s.theme = local.theme; s.cardStyle = local.cardStyle; s.garland = local.garland; s.calm = local.calm;
     s.created = Math.min(local.created || Infinity, remote.created || Infinity);
     s.updatedAt = Math.max(local.updatedAt || 0, remote.updatedAt || 0);
     return s;
@@ -76,6 +77,7 @@
     if (!s.created) s.created = Date.now();
     if (!CARD_STYLES.some((c) => c[0] === s.cardStyle)) s.cardStyle = "frost";
     s.garland = s.garland !== false;
+    s.calm = s.calm === true;
     return s;
   }
   let state;
@@ -165,7 +167,7 @@
       $(".ach-ico", d).textContent = ico; $("b", d).textContent = name; $("small", d).textContent = bar ? `${desc} · ${c}/${goal}` : desc;
       if (bar) $(".ach-bar i", d).style.width = (c / goal) * 100 + "%";
       const say = () => toast(`${name} — ${desc}${done ? " ✓" : bar ? ` (${c}/${goal})` : ""}`);
-      d.addEventListener("click", say); d.addEventListener("keydown", (e) => { if (e.key === "Enter") say(); });
+      d.addEventListener("click", say); d.addEventListener("keydown", (e) => { if (e.key === "Enter") say(); if (e.key === " ") e.preventDefault(); }); d.addEventListener("keyup", (e) => { if (e.key === " ") say(); });
       box.appendChild(d);
     });
   }
@@ -247,8 +249,8 @@
   // доступність: прихована сторона картки не озвучується скрінрідером
   function syncFaces(card) {
     const both = card.classList.contains("both"), fl = card.classList.contains("flipped");
-    $(".front", card).setAttribute("aria-hidden", String(!both && fl));
-    $(".back", card).setAttribute("aria-hidden", String(!both && !fl));
+    const fh = !both && fl, bh = !both && !fl, fe = $(".front", card), be = $(".back", card);
+    fe.setAttribute("aria-hidden", String(fh)); be.setAttribute("aria-hidden", String(bh)); fe.inert = fh; be.inert = bh;
     card.setAttribute("aria-pressed", String(fl));
   }
   function flipCard(card) {
@@ -493,6 +495,7 @@
     }
     r.setProperty("--ts", String(state.textScale || 1));
     document.documentElement.classList.toggle("no-garland", state.garland === false);
+    document.documentElement.classList.toggle("calm", state.calm === true);
   }
   function paintAvatar(el, av, name) {
     el.textContent = ""; el.style.background = ""; el.style.backgroundImage = "";
@@ -573,7 +576,7 @@
     });
     $("#avPhotoDel").hidden = state.avatar.kind !== "photo";
     $$("#scaleSeg button").forEach((b) => b.classList.toggle("on", Number(b.dataset.s) === state.textScale));
-    $("#deFirst").checked = state.germanFirst; $("#snowOn").checked = snow.enabled(); $("#garlandOn").checked = state.garland !== false;
+    $("#deFirst").checked = state.germanFirst; $("#snowOn").checked = snow.enabled(); $("#garlandOn").checked = state.garland !== false; $("#calmOn").checked = !!state.calm;
     if (!$("#authBox").contains(document.activeElement)) renderAuthBox();
   }
   function wireProfile() {
@@ -603,10 +606,11 @@
     $("#deFirst").addEventListener("change", (e) => { state.germanFirst = e.target.checked; save(false); });
     $("#snowOn").addEventListener("change", (e) => { state.snow = e.target.checked; save(false); snow.sync(); });
     $("#garlandOn").addEventListener("change", (e) => { state.garland = e.target.checked; applyLook(); save(false); });
+    $("#calmOn").addEventListener("change", (e) => { state.calm = e.target.checked; applyLook(); snow.sync(); save(false); });
     $("#resetAll").addEventListener("click", () => {
       if (!confirm("Скинути весь прогрес на цьому пристрої? Профіль і вигляд збережуться. Це не можна скасувати.")) return;
-      const { name, motto, avatar, accent, textScale, theme, snow: sn, germanFirst, created, cardStyle, garland } = state;
-      state = normalize({ name, motto, avatar, accent, textScale, theme, snow: sn, germanFirst, created, cardStyle, garland }); filter = "all"; idx = 0; save(false); toast("Прогрес скинуто");
+      const { name, motto, avatar, accent, textScale, theme, snow: sn, germanFirst, created, cardStyle, garland, calm } = state;
+      state = normalize({ name, motto, avatar, accent, textScale, theme, snow: sn, germanFirst, created, cardStyle, garland, calm }); filter = "all"; idx = 0; save(false); toast("Прогрес скинуто");
     });
   }
 
@@ -665,7 +669,7 @@
       return;
     }
     const up = cloud.mode === "signup";
-    f.innerHTML = `${up ? '<input type="text" id="aName" placeholder="Ім\'я в рейтингу" maxlength="40" />' : ""}<input type="email" id="aEmail" placeholder="Email" autocomplete="email" /><input type="password" id="aPass" placeholder="Пароль (від 6 символів)" autocomplete="${up ? "new-password" : "current-password"}" /><div class="err" id="aErr"></div><button class="btn primary" id="aGo">${up ? "Створити акаунт" : "Увійти"}</button><button class="link" id="aSwitch">${up ? "Вже є акаунт? Увійти" : "Вперше тут? Створити акаунт"}</button>`;
+    f.innerHTML = `${up ? "<label class='field'>Ім'я в рейтингу<input type='text' id='aName' maxlength='40' autocomplete='nickname' required /></label>" : ""}<label class="field">Email<input type="email" id="aEmail" autocomplete="email" required /></label><label class="field">Пароль<input type="password" id="aPass" minlength="6" placeholder="від 6 символів" autocomplete="${up ? "new-password" : "current-password"}" required /></label><div class="err" id="aErr"></div><button class="btn primary" id="aGo">${up ? "Створити акаунт" : "Увійти"}</button><button class="link" id="aSwitch">${up ? "Вже є акаунт? Увійти" : "Вперше тут? Створити акаунт"}</button>`;
     box.appendChild(f); $("#aErr", box).textContent = cloud.error;
     $("#aSwitch", box).addEventListener("click", () => { cloud.mode = up ? "signin" : "signup"; cloud.error = ""; renderAuthBox(); });
     $("#aGo", box).addEventListener("click", async () => {
@@ -728,7 +732,7 @@
       const row = rkRowEl(i + 1, { name: r.display_name, rank: RANKS[rankOf(r.xp)][1], learned: r.learned_count, streak: r.streak, motto: String(r.motto || "").slice(0, 80), av, cs: r.card_style }, r.user_id === cloud.user.id);
       row.tabIndex = 0; row.setAttribute("role", "button"); row.title = "Відкрити профіль";
       const open = () => (r.user_id === cloud.user.id ? show("profile") : openUser(r, av));
-      row.addEventListener("click", open); row.addEventListener("keydown", (e) => { if (e.key === "Enter") open(); });
+      row.addEventListener("click", open); row.addEventListener("keydown", (e) => { if (e.key === "Enter") open(); if (e.key === " ") e.preventDefault(); }); row.addEventListener("keyup", (e) => { if (e.key === " ") open(); });
       body.appendChild(row);
     });
   }
@@ -791,7 +795,7 @@
     }
     function stop() { cancelAnimationFrame(raf); raf = 0; ctx.clearRect(0, 0, W, H); }
     // null = авто: на телефоні й сенсорних екранах вимкнено, щоб не розряджати батарею
-    const enabled = () => (state.snow === null || state.snow === undefined ? !(matchMedia("(pointer: coarse)").matches || innerWidth < 700) : !!state.snow);
+    const enabled = () => !state.calm && (state.snow === null || state.snow === undefined ? !(matchMedia("(pointer: coarse)").matches || innerWidth < 700) : !!state.snow);
     function sync() {
       stop(); if (!enabled() || reduce.matches || document.hidden) return;
       size(); flakes = Array.from({ length: innerWidth < 700 ? 35 : 70 }, make); raf = requestAnimationFrame(frame);
