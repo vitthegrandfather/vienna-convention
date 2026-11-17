@@ -1017,3 +1017,12 @@ details.fold[open]::details-content { block-size: auto; }
   *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition-duration: .01ms !important; transition-delay: 0s !important; }
 }
 .calm *, .calm *::before, .calm *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition-duration: .01ms !important; transition-delay: 0s !important; }
+
+/* ===== пропозиції ===== */
+.idea-row { display: flex; justify-content: center; margin: 22px 0 6px; }
+.idea-row.left { justify-content: flex-start; margin-top: 18px; }
+.idea-open { display: inline-flex; align-items: center; gap: 9px; color: var(--muted); background: transparent; border-style: dashed; }
+.idea-open .ic { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+@media (hover: hover) { .idea-open:hover { color: var(--gold); border-color: var(--gold); } }
+#ideaKinds { margin: 4px 0 12px; }
+#ideaDlg textarea { width: 100%; }

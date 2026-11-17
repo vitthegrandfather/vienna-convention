@@ -838,6 +838,29 @@
     requestAnimationFrame(fitAll); setTimeout(fitAll, 300);
   }
 
+  /* ===== Пропозиції від учасників ===== */
+  function wireIdeas() {
+    const dlg = $("#ideaDlg"); let kind = "idea", last = 0;
+    $$(".idea-open").forEach((b) => b.addEventListener("click", () => {
+      if (!cloud.client || !cloud.user) { toast("Щоб надіслати пропозицію, спершу увійди в профіль"); return; }
+      dlg.showModal(); $("#ideaText").focus();
+    }));
+    $$("#ideaKinds button").forEach((b) => b.addEventListener("click", () => {
+      kind = b.dataset.k; $$("#ideaKinds button").forEach((x) => x.classList.toggle("on", x === b));
+    }));
+    $("#ideaSend").addEventListener("click", async () => {
+      const text = $("#ideaText").value.trim();
+      if (text.length < 3) { toast("Напиши хоч кілька слів"); return; }
+      if (Date.now() - last < 30000) { toast("Зачекай трохи перед наступною пропозицією"); return; }
+      const btn = $("#ideaSend"); btn.disabled = true;
+      let err = null;
+      try { ({ error: err } = await cloud.client.from("v2_suggestions").insert({ user_id: cloud.user.id, display_name: String(displayName() || "").slice(0, 40), kind, text: text.slice(0, 600) })); } catch (e) { err = e; }
+      btn.disabled = false;
+      if (err) { toast("Не вдалося надіслати. Спробуй пізніше"); return; }
+      last = Date.now(); $("#ideaText").value = ""; dlg.close(); toast("Дякуємо! Пропозицію отримано 🎄");
+    });
+  }
+
   /* ===== Chill-джаз радіо ===== */
   const music = (() => {
     const STATIONS = [
@@ -929,7 +952,7 @@
     document.fonts?.ready.then(fitAll);
     const syncFolds = () => { const desk = matchMedia("(min-width: 961px)").matches; $$("details.fold").forEach((d) => (d.open = desk || d.hasAttribute("data-open-mobile"))); };
     syncFolds(); matchMedia("(min-width: 961px)").addEventListener("change", syncFolds);
-    paintIcons(); music.init(); wireLayout(); wireNav(); wireArticles(); wireReview(); wireProfile();
+    paintIcons(); music.init(); wireIdeas(); wireLayout(); wireNav(); wireArticles(); wireReview(); wireProfile();
     $("#rankRefresh").addEventListener("click", loadBoard);
     $("#uvBack").addEventListener("click", () => show("ranking"));
     if (ui.n != null && byN[ui.n]) { const i = list().indexOf(ui.n); idx = i >= 0 ? i : 0; }
