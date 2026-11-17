@@ -449,7 +449,7 @@
   function show(view) {
     $$(".view").forEach((v) => v.classList.toggle("active", v.id === "view-" + view));
     $$(".nav-btn[data-view]").forEach((b) => b.classList.toggle("active", b.dataset.view === (view === "user" ? "ranking" : view)));
-    ui.view = view === "user" ? "ranking" : view; saveUi(); window.scrollTo({ top: 0 });
+    ui.view = view === "user" ? "ranking" : view; document.documentElement.dataset.view = ui.view; saveUi(); window.scrollTo({ top: 0 });
     if (view === "review") startReview(false);
     if (view === "ranking") loadBoard();
     if (view === "articles") renderArticles();
