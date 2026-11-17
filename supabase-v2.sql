@@ -19,6 +19,7 @@ alter table public.v2_group_profiles add column if not exists motto text not nul
 alter table public.v2_group_profiles add column if not exists avatar text not null default '';
 alter table public.v2_group_profiles add column if not exists avatar_photo text not null default '';
 alter table public.v2_group_profiles add column if not exists card_style text not null default 'frost';
+alter table public.v2_group_profiles add column if not exists public_stats jsonb not null default '{}'::jsonb;
 
 -- Права для залогінених користувачів (у нових проєктах Supabase їх треба видавати явно)
 grant usage on schema public to authenticated;

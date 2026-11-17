@@ -16,7 +16,7 @@
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='32' fill='%23241b46'/%3E%3Cpath d='M32 9l5.6 13.4 14.4 1.2-11 9.4 3.4 14L32 39.2 19.6 47l3.4-14-11-9.4 14.4-1.2z' fill='%23f6c453'/%3E%3C/svg%3E" />
   <link rel="preload" href="fonts/cormorant-cyrillic-700.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="fonts/inter-cyrillic.woff2" as="font" type="font/woff2" crossorigin />
-  <link rel="stylesheet" href="styles.css?v=9" />
+  <link rel="stylesheet" href="styles.css?v=11" />
 </head>
 <body>
   <canvas id="snow" aria-hidden="true"></canvas>
@@ -161,6 +161,33 @@
         <div class="rk-list" id="rankBody"></div>
       </section>
 
+      <!-- ПРОФІЛЬ УЧАСНИКА -->
+      <section class="view" id="view-user">
+        <div class="view-head"><button class="btn" id="uvBack">← До рейтингу</button></div>
+        <div class="pf">
+          <section class="pf-head">
+            <div class="pf-banner uv-banner" id="uvBanner" aria-hidden="true"></div>
+            <div class="pf-me">
+              <span class="avatar xl" id="uvAvatar" role="img" aria-label="Аватарка"></span>
+              <div class="pf-id">
+                <h2 id="uvName"></h2>
+                <p class="pf-motto" id="uvMotto" hidden></p>
+                <div class="rank-line"><strong id="uvRank"></strong><span id="uvXp"></span></div>
+                <div class="bar"><i id="uvBar"></i></div>
+                <small class="muted" id="uvNext"></small>
+              </div>
+            </div>
+          </section>
+          <div class="pf-col">
+            <section class="panel"><h3>Статистика</h3><div class="pf-stats" id="uvStats"></div></section>
+            <section class="panel"><h3>Досягнення</h3><div class="ach" id="uvAch"></div></section>
+          </div>
+          <div class="pf-col">
+            <section class="panel"><h3>Статті <small class="muted" id="uvArtCount"></small></h3><div class="uv-arts" id="uvArts"></div></section>
+          </div>
+        </div>
+      </section>
+
       <!-- ПРОФІЛЬ -->
       <section class="view" id="view-profile">
         <div class="pf">
@@ -248,8 +275,8 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.min.js" defer></script>
   <script src="config.js?v=1"></script>
-  <script src="articles.js?v=1"></script>
+  <script src="articles.js?v=2"></script>
   <script src="avatars/index.js"></script>
-  <script src="app.js?v=8" defer></script>
+  <script src="app.js?v=10" defer></script>
 </body>
 </html>

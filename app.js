@@ -201,7 +201,7 @@
   }
   function unflip(card) {
     if (!card.classList.contains("flipped")) return syncFaces(card);
-    card.style.transition = "none"; card.classList.remove("flipped"); void card.offsetWidth; card.style.transition = ""; syncFaces(card);
+    card.classList.add("noanim"); card.style.transition = "none"; card.classList.remove("flipped"); void card.offsetWidth; card.style.transition = ""; card.classList.remove("noanim"); syncFaces(card);
   }
   // великі статті: зменшуємо шрифт, доки текст не влізе без прокрутки (мінімум 12 px)
   function fitText(el) {
@@ -396,12 +396,13 @@
   /* ---------- navigation ---------- */
   function show(view) {
     $$(".view").forEach((v) => v.classList.toggle("active", v.id === "view-" + view));
-    $$(".nav-btn[data-view]").forEach((b) => b.classList.toggle("active", b.dataset.view === view));
-    ui.view = view; saveUi(); window.scrollTo({ top: 0 });
+    $$(".nav-btn[data-view]").forEach((b) => b.classList.toggle("active", b.dataset.view === (view === "user" ? "ranking" : view)));
+    ui.view = view === "user" ? "ranking" : view; saveUi(); window.scrollTo({ top: 0 });
     if (view === "review") startReview(false);
     if (view === "ranking") loadBoard();
     if (view === "articles") renderArticles();
     if (view === "profile") renderProfilePage();
+    if (view === "user") renderUser();
     $("#profileBtn").classList.toggle("active", view === "profile");
     requestAnimationFrame(fitAll);
   }
@@ -592,10 +593,13 @@
       hard_count: state.hard.length, streak: streak(), xp: xp(), updated_at: stamp,
     };
     const av = state.avatar;
-    const full = { ...base, card_style: state.cardStyle, motto: state.motto || "", avatar: av.kind === "preset" ? av.id : "", avatar_photo: av.kind === "photo" ? av.photo : "" };
-    let { error } = await cloud.client.from("v2_group_profiles").upsert(full, { onConflict: "user_id" });
-    // якщо колонок motto / avatar ще немає в таблиці — зберігаємо хоча б основне
-    if (error) await cloud.client.from("v2_group_profiles").upsert(base, { onConflict: "user_id" });
+    const pub = { learned: state.learned, hard: state.hard, ach: state.ach, reviewsDone: state.reviewsDone, notes: Object.values(state.notes).filter(Boolean).length, days: state.studyDates.length, best: bestStreak(), created: state.created };
+    const mid = { ...base, card_style: state.cardStyle, motto: state.motto || "", avatar: av.kind === "preset" ? av.id : "", avatar_photo: av.kind === "photo" ? av.photo : "" };
+    // пробуємо від повного набору колонок до базового (колонки з'являються після виконання SQL)
+    for (const row of [{ ...mid, public_stats: pub }, mid, base]) {
+      const { error } = await cloud.client.from("v2_group_profiles").upsert(row, { onConflict: "user_id" });
+      if (!error) break;
+    }
   }
   function renderAuthBox() {
     const box = $("#authBox"); box.textContent = "";
@@ -660,15 +664,62 @@
     if (!cloud.user) { body.innerHTML = '<div><p>Увійдіть, щоб побачити рейтинг групи й потрапити до нього.</p><div class="row" style="margin-top:12px"><button class="btn primary" id="rkLogin">Увійти або зареєструватися</button></div></div>'; $("#rkLogin").addEventListener("click", () => show("profile")); return; }
     body.innerHTML = "<div>Завантажую…</div>";
     const q = (cols) => cloud.client.from("v2_group_profiles").select(cols).order("learned_count", { ascending: false }).order("xp", { ascending: false });
-    let { data, error } = await q("user_id,display_name,learned_count,streak,xp,motto,avatar,avatar_photo,card_style");
-    if (error) ({ data, error } = await q("user_id,display_name,learned_count,streak,xp")); // колонок профілю ще немає
+    const base = "user_id,display_name,learned_count,hard_count,streak,xp";
+    let data = null, error = null;
+    for (const cols of [base + ",motto,avatar,avatar_photo,card_style,public_stats", base + ",motto,avatar,avatar_photo,card_style", base]) {
+      ({ data, error } = await q(cols)); if (!error) break;
+    }
     if (error) { body.innerHTML = '<div><p class="err">Не вдалося завантажити рейтинг. Перевірте, що виконано supabase-v2.sql.</p><p class="muted" style="margin-top:8px"></p></div>'; $("p.muted", body).textContent = `Деталі: ${error.code || ""} ${error.message || ""}`; console.error("ranking", error); return; }
     body.textContent = "";
     if (!data.length) { body.innerHTML = "<div>Поки що нікого. Вивчіть першу статтю — і ви тут!</div>"; return; }
     data.forEach((r, i) => {
       const av = r.avatar_photo && PHOTO_RE.test(r.avatar_photo) && r.avatar_photo.length < 200000 ? { kind: "photo", photo: r.avatar_photo }
         : r.avatar && AVATARS.some((a) => a[0] === r.avatar) ? { kind: "preset", id: r.avatar } : { kind: "letter" };
-      body.appendChild(rkRowEl(i + 1, { name: r.display_name, rank: RANKS[rankOf(r.xp)][1], learned: r.learned_count, streak: r.streak, motto: String(r.motto || "").slice(0, 80), av, cs: r.card_style }, r.user_id === cloud.user.id));
+      const row = rkRowEl(i + 1, { name: r.display_name, rank: RANKS[rankOf(r.xp)][1], learned: r.learned_count, streak: r.streak, motto: String(r.motto || "").slice(0, 80), av, cs: r.card_style }, r.user_id === cloud.user.id);
+      row.tabIndex = 0; row.setAttribute("role", "button"); row.title = "Відкрити профіль";
+      const open = () => (r.user_id === cloud.user.id ? show("profile") : openUser(r, av));
+      row.addEventListener("click", open); row.addEventListener("keydown", (e) => { if (e.key === "Enter") open(); });
+      body.appendChild(row);
+    });
+  }
+
+  /* ---------- чужий профіль ---------- */
+  let viewedUser = null;
+  function openUser(r, av) { viewedUser = { r, av }; show("user"); }
+  function renderUser() {
+    if (!viewedUser) return show("ranking");
+    const { r, av } = viewedUser, ps = r.public_stats && typeof r.public_stats === "object" ? r.public_stats : null;
+    const ints = (a) => (Array.isArray(a) ? a.filter((n) => Number.isInteger(n) && byN[n]) : null);
+    const learned = ints(ps?.learned), hard = ints(ps?.hard) || [], ach = Array.isArray(ps?.ach) ? ps.ach.filter((x) => ACH.some((a) => a[0] === x)) : [];
+    const name = String(r.display_name || "Учасник").slice(0, 40), xpN = Number(r.xp) || 0, ri2 = rankOf(xpN), next = RANKS[ri2 + 1];
+    const csId = CARD_STYLES.some((c) => c[0] === r.card_style) ? r.card_style : "frost";
+    $("#uvBanner").className = "pf-banner uv-banner cs-" + csId;
+    paintAvatar($("#uvAvatar"), av, name);
+    $("#uvName").textContent = name; const m = String(r.motto || "").slice(0, 80); $("#uvMotto").textContent = m; $("#uvMotto").hidden = !m;
+    $("#uvRank").textContent = RANKS[ri2][1]; $("#uvXp").textContent = xpN + " XP";
+    const lo = RANKS[ri2][0], hi = next ? next[0] : lo;
+    $("#uvBar").style.width = (next ? ((xpN - lo) / (hi - lo)) * 100 : 100) + "%";
+    $("#uvNext").textContent = next ? `До рангу «${next[1]}»: ще ${hi - xpN} XP` : "Найвищий ранг";
+    const L = learned ? learned.length : Number(r.learned_count) || 0;
+    const tiles = [["Вивчено", `${L} / ${TOTAL}`], ["Серія", `${Number(r.streak) || 0} дн.`], ["Найкраща серія", ps?.best != null ? `${Number(ps.best) || 0} дн.` : "—"],
+      ["Днів навчання", ps?.days != null ? Number(ps.days) || 0 : "—"], ["Повторень", ps?.reviewsDone != null ? Number(ps.reviewsDone) || 0 : "—"], ["Нотаток", ps?.notes != null ? Number(ps.notes) || 0 : "—"],
+      ["Складних", hard.length || Number(r.hard_count) || 0], ["Досягнень", `${ach.length} / ${ACH.length}`], ["Досвід", xpN + " XP"],
+      ["З нами з", ps?.created ? new Date(Number(ps.created)).toLocaleDateString("uk-UA", { day: "numeric", month: "long" }) : "—"]];
+    const sb = $("#uvStats"); sb.textContent = "";
+    tiles.forEach(([l, v]) => { const d = document.createElement("div"); d.className = "pf-stat"; d.innerHTML = "<span></span><b></b>"; $("span", d).textContent = l; $("b", d).textContent = v; sb.appendChild(d); });
+    const ag = $("#uvAch"); ag.textContent = "";
+    ACH.forEach(([id, label, desc, ico]) => {
+      const done = ach.includes(id), d = document.createElement("div"); d.className = "ach-item" + (done ? " done" : "");
+      d.innerHTML = '<span class="ach-ico"></span><span><b></b><small></small></span>'; $(".ach-ico", d).textContent = ico; $("b", d).textContent = label; $("small", d).textContent = desc; ag.appendChild(d);
+    });
+    const ar = $("#uvArts"); ar.textContent = "";
+    if (!learned) { $("#uvArtCount").textContent = ""; ar.textContent = "Список статей з'явиться, коли учасник знову відкриє сайт."; ar.className = "uv-arts muted"; return; }
+    ar.className = "uv-arts"; $("#uvArtCount").textContent = `· вивчено ${learned.length} з ${TOTAL}`;
+    ARTS.forEach((a) => {
+      const d = document.createElement("div"), ok = learned.includes(a.n), hd = hard.includes(a.n);
+      d.className = "uv-art" + (ok ? " ok" : "") + (hd ? " hard" : ""); d.innerHTML = "<b></b><span></span>";
+      $("b", d).textContent = a.n === 0 ? "§" : a.n; $("span", d).textContent = a.tu; d.title = (ok ? "Вивчена" : "Не вивчена") + (hd ? ", складна" : "");
+      ar.appendChild(d);
     });
   }
 
@@ -726,6 +777,7 @@
     document.fonts?.ready.then(fitAll);
     paintIcons(); wireNav(); wireArticles(); wireReview(); wireProfile();
     $("#rankRefresh").addEventListener("click", loadBoard);
+    $("#uvBack").addEventListener("click", () => show("ranking"));
     if (ui.n != null && byN[ui.n]) { const i = list().indexOf(ui.n); idx = i >= 0 ? i : 0; }
     renderHome(); renderProfile(); tick(); setInterval(tick, 1000); setInterval(renderHome, 60000);
     show(["home", "articles", "review", "ranking", "profile"].includes(ui.view) ? ui.view : "home");

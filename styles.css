@@ -451,3 +451,27 @@ body::after { content: ""; position: fixed; inset: 0; z-index: 0; pointer-events
 .rk-row.cs-gift .rk-score { color: #8a1018; text-align: center; } .rk-row.cs-gift .rk-score small { color: #a8543a; }
 .rk-row.cs-gift.compact { --pc: 24px; --av: 44px; --sc: 44px; --lw: 36px; --rw: 52px; }
 @media (max-width: 960px) { .rk-row.cs-gift { --pc: 30px; --av: 52px; --sc: 56px; --lw: 46px; --rw: 68px; } .rk-row.cs-gift.compact { --pc: 24px; --av: 44px; --sc: 44px; --lw: 36px; --rw: 52px; } }
+
+/* перегляд чужого профілю */
+.rk-row[role="button"] { cursor: pointer; transition: transform .15s ease, box-shadow .15s ease; }
+.rk-row[role="button"]:hover { transform: translateY(-2px); }
+.rk-row[role="button"]:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.uv-banner { background: var(--cs-bg); opacity: 1; }
+.uv-banner::after { color: var(--cs-ink); }
+.uv-arts { display: grid; grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); gap: 8px; }
+.uv-arts.muted { display: block; padding: 6px 0; }
+.uv-art { display: flex; gap: 10px; align-items: center; padding: 9px 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface-solid); font-size: 13px; opacity: .5; position: relative; }
+.uv-art b { font-family: var(--serif); font-size: 18px; min-width: 26px; color: var(--muted); } .uv-art span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.uv-art.ok { opacity: 1; border-color: var(--ok); background: color-mix(in srgb, var(--ok) 12%, var(--surface-solid)); } .uv-art.ok b { color: var(--ok); }
+.uv-art.hard::after { content: ""; position: absolute; top: 7px; right: 7px; width: 9px; height: 9px; border-radius: 50%; background: var(--warn); }
+
+/* Safari/iOS: backface-visibility ненадійний — ховаємо невидиму сторону картки прозорістю посеред повороту */
+.card .face { -webkit-backface-visibility: hidden; backface-visibility: hidden; }
+.card:not(.both) .face { transition: opacity 0s linear .27s; }
+.card:not(.both) .back { opacity: 0; }
+.card:not(.both).flipped .back { opacity: 1; }
+.card:not(.both).flipped .front { opacity: 0; }
+.card.noanim .face { transition: none !important; }
+.card.both .face { opacity: 1; }
+/* гірлянда прокручується разом зі сторінкою і не перекриває кнопки */
+.garland { position: absolute; }
