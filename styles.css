@@ -426,3 +426,28 @@ body::after { content: ""; position: fixed; inset: 0; z-index: 0; pointer-events
 .fx { position: fixed; z-index: 90; pointer-events: none; line-height: 1; text-shadow: 0 0 8px currentColor; }
 @media (max-width: 960px) { .main { padding-top: 46px; } .no-garland .main { padding-top: 22px; } .drift { display: none; } .greet { font-size: 21px; } }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } *::before, *::after { animation: none !important; } #snow { display: none; } }
+
+/* кнопки-іконки */
+.ic { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; display: block; }
+.btn.ic-btn { display: grid; place-items: center; padding: 0; }
+.controls .btn.ic-btn { height: 56px; padding: 0; border-radius: 16px; }
+.controls .btn.ic-btn.nav-arrow { flex: 0 0 56px; width: 56px; }
+.controls .btn.ic-btn.big { flex: 1.7; max-width: none; } .controls .btn.ic-btn.big .ic { width: 28px; height: 28px; stroke-width: 2.8; }
+.controls #mHard, .controls #mReview { flex: 1; }
+#mHard.on { color: var(--warn); border-color: var(--warn); background: color-mix(in srgb, var(--warn) 16%, transparent); }
+#mReview.on { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+#mLearned.done { background: var(--ok); border-color: var(--ok); color: #05210f; box-shadow: 0 6px 18px color-mix(in srgb, var(--ok) 38%, transparent); }
+.btn.sm.ic-btn { width: 40px; height: 36px; border-radius: 12px; } .btn.sm.ic-btn .ic { width: 19px; height: 19px; }
+#mNote.on { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+@media (max-width: 960px) { .controls .btn.ic-btn.big { flex: 1 1 100%; } .controls .btn.ic-btn.nav-arrow { flex: 1; width: auto; } }
+
+/* картка «це ви»: тонке світіння замість кільця з відступом */
+.rk-row.me { outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--cs-acc) 55%, transparent), 0 8px 26px rgba(0,0,0,.25); }
+/* «Подарунок»: справжні стрічки з номером і результатом */
+.rk-row.cs-gift { --pc: 40px; --av: 64px; --sc: 64px; --lw: 60px; --rw: 80px; border: 2px solid #f5c542; padding-left: calc(var(--lw) / 2 - var(--pc) / 2); padding-right: calc(var(--rw) / 2 - var(--sc) / 2); grid-template-columns: var(--pc) var(--av) minmax(0, 1fr) var(--sc); }
+.rk-row.cs-gift::before { background: linear-gradient(90deg, #f5c542 0 var(--lw), #c99a1c var(--lw) calc(var(--lw) + 2px), transparent calc(var(--lw) + 2px) calc(100% - var(--rw) - 2px), #c99a1c calc(100% - var(--rw) - 2px) calc(100% - var(--rw)), #f5c542 calc(100% - var(--rw))); }
+.rk-row.cs-gift::after { display: none; }
+.rk-row.cs-gift .rk-pos, .rk-row.cs-gift.top1 .rk-pos, .rk-row.cs-gift.top2 .rk-pos, .rk-row.cs-gift.top3 .rk-pos { color: #8a1018; text-shadow: none; text-align: center; }
+.rk-row.cs-gift .rk-score { color: #8a1018; text-align: center; } .rk-row.cs-gift .rk-score small { color: #a8543a; }
+.rk-row.cs-gift.compact { --pc: 24px; --av: 44px; --sc: 44px; --lw: 36px; --rw: 52px; }
+@media (max-width: 960px) { .rk-row.cs-gift { --pc: 30px; --av: 52px; --sc: 56px; --lw: 46px; --rw: 68px; } .rk-row.cs-gift.compact { --pc: 24px; --av: 44px; --sc: 44px; --lw: 36px; --rw: 52px; } }

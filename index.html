@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="uk">
 <head>
   <meta charset="utf-8" />
@@ -16,7 +16,7 @@
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='32' fill='%23241b46'/%3E%3Cpath d='M32 9l5.6 13.4 14.4 1.2-11 9.4 3.4 14L32 39.2 19.6 47l3.4-14-11-9.4 14.4-1.2z' fill='%23f6c453'/%3E%3C/svg%3E" />
   <link rel="preload" href="fonts/cormorant-cyrillic-700.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="fonts/inter-cyrillic.woff2" as="font" type="font/woff2" crossorigin />
-  <link rel="stylesheet" href="styles.css?v=7" />
+  <link rel="stylesheet" href="styles.css?v=9" />
 </head>
 <body>
   <canvas id="snow" aria-hidden="true"></canvas>
@@ -114,7 +114,7 @@
         </div>
         <div class="study">
           <div class="study-main">
-            <div class="card-meta"><span id="cardCount">1 / 27</span><div class="card-tools"><button class="btn sm mobile-only" id="listBtn">Розділи</button><button class="btn sm" id="modeBtn">Одна мова</button><button class="btn sm" id="flip">⇄ Перевернути</button><button class="btn sm" id="mNote">Нотатка</button></div></div>
+            <div class="card-meta"><span id="cardCount">1 / 27</span><div class="card-tools"><button class="btn sm ic-btn mobile-only" id="listBtn" aria-label="Усі розділи" title="Усі розділи"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14M5 12h14M5 17h14"/></svg></button><button class="btn sm ic-btn" id="modeBtn" aria-label="Дві мови поруч" title="Дві мови поруч"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="8" height="14" rx="2"/><rect x="13" y="5" width="8" height="14" rx="2"/></svg></button><button class="btn sm ic-btn" id="flip" aria-label="Перевернути" title="Перевернути (пробіл)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8h12l-3-3"/><path d="M18 16H6l3 3"/></svg></button><button class="btn sm ic-btn" id="mNote" aria-label="Нотатка" title="Нотатка"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l4-1 11-11-3-3L5 16z"/><path d="M14 6l3 3"/></svg></button></div></div>
             <div class="card-wrap">
               <div class="card" id="card" role="button" tabindex="0" aria-label="Картка статті. Натисніть, щоб перевернути">
                 <div class="face front"><span class="face-lang" id="frontLang">Українська</span><h3 id="frontTitle"></h3><div class="text" id="frontText"></div></div>
@@ -123,11 +123,11 @@
               <div class="empty" id="emptyState" hidden><span aria-hidden="true">❄</span><p>За цим фільтром нічого немає</p><button class="btn" id="resetFilter">Скинути фільтр</button></div>
             </div>
             <div class="controls">
-              <button class="btn nav-arrow" id="prev" aria-label="Попередня стаття">←</button>
-              <button class="btn" id="mHard">Складна</button>
-              <button class="btn primary big" id="mLearned">Вивчено</button>
-              <button class="btn" id="mReview">Повторити</button>
-              <button class="btn nav-arrow" id="next" aria-label="Наступна стаття">→</button>
+              <button class="btn nav-arrow ic-btn" id="prev" aria-label="Попередня стаття" title="Попередня (←)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+              <button class="btn ic-btn" id="mHard" aria-label="Складна" title="Позначити складною"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 21V4"/><path d="M6 5h11l-2 4 2 4H6"/></svg></button>
+              <button class="btn primary big ic-btn" id="mLearned" aria-label="Вивчено" title="Вивчено"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button>
+              <button class="btn ic-btn" id="mReview" aria-label="Повторити" title="Додати до повторення"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 0114-5l2 2"/><path d="M20 4v5h-5"/><path d="M20 12a8 8 0 01-14 5l-2-2"/><path d="M4 20v-5h5"/></svg></button>
+              <button class="btn nav-arrow ic-btn" id="next" aria-label="Наступна стаття" title="Наступна (→)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
             </div>
           </div>
           <aside class="study-list" id="studyList" aria-label="Усі розділи">
@@ -250,6 +250,6 @@
   <script src="config.js?v=1"></script>
   <script src="articles.js?v=1"></script>
   <script src="avatars/index.js"></script>
-  <script src="app.js?v=7" defer></script>
+  <script src="app.js?v=8" defer></script>
 </body>
 </html>

@@ -233,7 +233,7 @@
     const both = isBoth(), cardEl = $("#card");
     cardEl.classList.toggle("both", both); if (both) cardEl.classList.remove("flipped");
     $("#flip").hidden = both; $("#modeBtn").hidden = !matchMedia("(min-width: 960px)").matches;
-    $("#modeBtn").textContent = both ? "Одна мова" : "Дві мови поруч";
+    $("#modeBtn").classList.toggle("on", both); { const t = both ? "Одна мова (перевертання)" : "Дві мови поруч"; $("#modeBtn").title = t; $("#modeBtn").setAttribute("aria-label", t); }
     syncFaces(cardEl);
     $("#cardCount").textContent = empty ? "0 / 0" : `${idx + 1} / ${L.length}`;
     if (!empty) {
@@ -243,8 +243,8 @@
       $("#mHard").classList.toggle("on", has("hard", n));
       $("#mReview").classList.toggle("on", has("review", n));
       $("#mNote").classList.toggle("on", !!state.notes[n]);
-      $("#mNote").textContent = state.notes[n] ? "Нотатка ✎" : "Нотатка";
-      const ml = $("#mLearned"); ml.textContent = has("learned", n) ? "Вивчено · зняти" : "Вивчено"; ml.classList.toggle("primary", !has("learned", n));
+      { const t = state.notes[n] ? "Нотатка (є запис)" : "Нотатка"; $("#mNote").title = t; $("#mNote").setAttribute("aria-label", t); }
+      const ml = $("#mLearned"), isL = has("learned", n); ml.classList.toggle("done", isL); ml.classList.toggle("primary", !isL); { const t = isL ? "Вивчено — натисніть, щоб зняти" : "Вивчено"; ml.title = t; ml.setAttribute("aria-label", t); }
       ui.n = n; saveUi(); fitAll();
     }
     const ol = $("#artList"); ol.textContent = "";
