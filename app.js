@@ -8,8 +8,8 @@
   const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
 
   const RANKS = [
-    [0, "Стажер"], [30, "Аташе"], [90, "Третій секретар"], [160, "Другий секретар"],
-    [240, "Перший секретар"], [330, "Радник"], [420, "Повноважний посол"],
+    [0, "Новачок"], [30, "Студент"], [90, "Практик"], [160, "Знавець"],
+    [240, "Експерт"], [330, "Майстер"], [420, "Легенда"],
   ];
 
   // теми: [id, назва, темна?, колір фону, колір акценту]
@@ -110,7 +110,7 @@
     ["a5", "Гірлянда запалена", "Вивчити 5 статей", "☀", () => state.learned.length, 5, "Вивчення"],
     ["a10", "Десятка", "Вивчити 10 статей", "Ⅹ", () => state.learned.length, 10, "Вивчення"],
     ["a14", "Півдороги", "Вивчити 14 розділів", "◐", () => state.learned.length, 14, "Вивчення"],
-    ["a20", "Майже посол", "Вивчити 20 статей", "◆", () => state.learned.length, 20, "Вивчення"],
+    ["a20", "Майже знавець", "Вивчити 20 статей", "◆", () => state.learned.length, 20, "Вивчення"],
     ["a25", "Один крок до мети", "Вивчити 25 розділів", "▲", () => state.learned.length, 25, "Вивчення"],
     ["all", "Хранитель конвенції", "Вивчити всі 27 розділів", "♛", () => state.learned.length, TOTAL, "Вивчення"],
     ["art0", "Преамбула в кишені", "Вивчити преамбулу", "§", () => (has("learned", 0) ? 1 : 0), 1, "Знавець статей"],
@@ -147,9 +147,9 @@
     ["accent", "Мій колір", "Обрати акцентний колір", "◉", () => (state.accent ? 1 : 0), 1, "Оформлення"],
     ["cardstyle", "Стиліст", "Змінити оформлення картки в рейтингу", "▣", () => (state.cardStyle !== "frost" ? 1 : 0), 1, "Оформлення"],
     ["theme", "Модник", "Змінити тему сайту", "◑", () => (state.flags.includes("theme") ? 1 : 0), 1, "Оформлення"],
-    ["rk1", "Аташе", "Дослужитися до рангу «Аташе»", "♘", xp, 30, "Ранги"],
-    ["rk5", "Радник", "Дослужитися до рангу «Радник»", "♝", xp, 330, "Ранги"],
-    ["rk6", "Повноважний посол", "Дослужитися до найвищого рангу", "♚", xp, 420, "Ранги"],
+    ["rk1", "Студент", "Досягти рівня «Студент»", "♘", xp, 30, "Рівні"],
+    ["rk5", "Майстер", "Досягти рівня «Майстер»", "♝", xp, 330, "Рівні"],
+    ["rk6", "Легенда", "Досягти найвищого рівня", "♚", xp, 420, "Рівні"],
     ["dec19", "Святий Миколай", "Повчитися 19 грудня", "🎁", () => (state.studyDates.some((d) => d.endsWith("-12-19")) ? 1 : 0), 1, "Святкові"],
     ["dec24", "Святвечір", "Повчитися 24 грудня", "★", () => (state.studyDates.some((d) => d.endsWith("-12-24")) ? 1 : 0), 1, "Святкові"],
     ["dec25", "Різдво", "Повчитися 25 грудня", "🔔", () => (state.studyDates.some((d) => d.endsWith("-12-25")) ? 1 : 0), 1, "Святкові"],
@@ -417,7 +417,7 @@
     $("#rankName").textContent = RANKS[ri2][1]; $("#rankXp").textContent = `${x} XP`;
     const lo = RANKS[ri2][0], hi = next ? next[0] : lo;
     $("#rankBar").style.width = (next ? ((x - lo) / (hi - lo)) * 100 : 100) + "%";
-    $("#rankNext").textContent = next ? `До рангу «${next[1]}»: ще ${hi - x} XP` : "Найвищий ранг досягнуто";
+    $("#rankNext").textContent = next ? `До рівня «${next[1]}»: ще ${hi - x} XP` : "Найвищий рівень досягнуто";
     $("#profileRank").textContent = RANKS[ri2][1];
     const hr = new Date().getHours(), hello = hr >= 5 && hr < 11 ? "Доброго ранку" : hr >= 11 && hr < 17 ? "Гарного дня" : hr >= 17 && hr < 23 ? "Затишного вечора" : "Тихої ночі";
     $("#greet").textContent = hello + (state.name ? ", " + state.name : "") + " ✦";
@@ -537,7 +537,7 @@
     $("#pfRank").textContent = RANKS[ri2][1]; $("#pfXp").textContent = `${x} XP`;
     const lo = RANKS[ri2][0], hi = next ? next[0] : lo;
     $("#pfBar").style.width = (next ? ((x - lo) / (hi - lo)) * 100 : 100) + "%";
-    $("#pfNext").textContent = next ? `До рангу «${next[1]}»: ще ${hi - x} XP` : "Найвищий ранг";
+    $("#pfNext").textContent = next ? `До рівня «${next[1]}»: ще ${hi - x} XP` : "Найвищий рівень";
     const nameIn = $("#pfNameIn"), mottoIn = $("#pfMottoIn");
     if (document.activeElement !== nameIn) nameIn.value = state.name;
     if (document.activeElement !== mottoIn) mottoIn.value = state.motto;
@@ -753,7 +753,7 @@
     $("#uvRank").textContent = RANKS[ri2][1]; $("#uvXp").textContent = xpN + " XP";
     const lo = RANKS[ri2][0], hi = next ? next[0] : lo;
     $("#uvBar").style.width = (next ? ((xpN - lo) / (hi - lo)) * 100 : 100) + "%";
-    $("#uvNext").textContent = next ? `До рангу «${next[1]}»: ще ${hi - xpN} XP` : "Найвищий ранг";
+    $("#uvNext").textContent = next ? `До рівня «${next[1]}»: ще ${hi - xpN} XP` : "Найвищий рівень";
     const L = learned ? learned.length : Number(r.learned_count) || 0;
     const tiles = [["Вивчено", `${L} / ${TOTAL}`], ["Серія", `${Number(r.streak) || 0} дн.`], ["Найкраща серія", ps?.best != null ? `${Number(ps.best) || 0} дн.` : "—"],
       ["Днів навчання", ps?.days != null ? Number(ps.days) || 0 : "—"], ["Повторень", ps?.reviewsDone != null ? Number(ps.reviewsDone) || 0 : "—"], ["Нотаток", ps?.notes != null ? Number(ps.notes) || 0 : "—"],
