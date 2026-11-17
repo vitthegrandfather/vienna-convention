@@ -763,7 +763,7 @@
     tiles.forEach(([l, v]) => { const d = document.createElement("div"); d.className = "pf-stat"; d.innerHTML = "<span></span><b></b>"; $("span", d).textContent = l; $("b", d).textContent = v; sb.appendChild(d); });
     fillAch($("#uvAch"), new Set(ach), false);
     const ar = $("#uvArts"); ar.textContent = "";
-    if (!learned) { $("#uvArtCount").textContent = ""; ar.textContent = "Поки порожньо. Либонь, дипломатична місія ще в дорозі 🎄"; ar.className = "uv-arts muted"; return; }
+    if (!learned) { $("#uvArtCount").textContent = ""; ar.textContent = "Поки нічого"; ar.className = "uv-arts muted"; return; }
     ar.className = "uv-arts"; $("#uvArtCount").textContent = `· вивчено ${learned.length} з ${TOTAL}`;
     ARTS.forEach((a) => {
       const d = document.createElement("button"), ok = learned.includes(a.n), hd = hard.includes(a.n); d.type = "button";
