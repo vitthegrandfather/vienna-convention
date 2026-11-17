@@ -907,3 +907,5 @@ textarea { resize: none; }
 @media (min-width: 961px) { .rail-collapsed .rail .music { padding: 8px 0; border-radius: 0; } .rail-collapsed .rail .music .mu-play { width: 40px; height: 40px; } }
 
 input[type=range], input[type=checkbox] { caret-color: transparent; -webkit-user-select: none; user-select: none; }
+
+@media (min-width: 1500px) { .main { max-width: none; padding-left: clamp(32px, 3vw, 72px); padding-right: clamp(32px, 3vw, 72px); } }
