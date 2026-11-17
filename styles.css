@@ -905,3 +905,5 @@ textarea { resize: none; }
 .mu-vol input[type="range"]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 3px var(--surface-solid), 0 0 0 5px var(--accent); }
 .mu-vol input[type="range"]:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 3px var(--surface-solid), 0 0 0 5px var(--accent); }
 @media (min-width: 961px) { .rail-collapsed .rail .music { padding: 8px 0; border-radius: 0; } .rail-collapsed .rail .music .mu-play { width: 40px; height: 40px; } }
+
+input[type=range], input[type=checkbox] { caret-color: transparent; -webkit-user-select: none; user-select: none; }
