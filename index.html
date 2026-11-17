@@ -16,7 +16,7 @@
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='32' fill='%23241b46'/%3E%3Cpath d='M32 9l5.6 13.4 14.4 1.2-11 9.4 3.4 14L32 39.2 19.6 47l3.4-14-11-9.4 14.4-1.2z' fill='%23f6c453'/%3E%3C/svg%3E" />
   <link rel="preload" href="fonts/cormorant-cyrillic-700.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="fonts/inter-cyrillic.woff2" as="font" type="font/woff2" crossorigin />
-  <link rel="stylesheet" href="styles.css?v=28" />
+  <link rel="stylesheet" href="styles.css?v=31" />
 </head>
 <body>
   <canvas id="snow" aria-hidden="true"></canvas>
@@ -32,6 +32,7 @@
           <div class="brand-eyebrow">Мова фаху · 1961</div>
           <div class="brand-title">Wiener Konvention</div>
         </div>
+        <button class="hamburger sm" id="railToggle" type="button" aria-expanded="true" aria-controls="main" title="Згорнути меню"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="rc-label sr">Згорнути меню</span></button>
       </div>
       <nav class="nav" aria-label="Розділи">
         <button class="nav-btn active" data-view="home"><i aria-hidden="true">◈</i><span>Огляд</span></button>
@@ -48,10 +49,6 @@
     </aside>
 
     <main id="main" class="main">
-      <div class="topbar">
-        <button class="hamburger" id="railToggle" type="button" aria-expanded="true" aria-controls="main" title="Згорнути меню"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="rc-label sr">Згорнути меню</span></button>
-        <button class="hamburger hb-right" id="listToggle" type="button" aria-expanded="true" aria-controls="studyList" title="Сховати розділи"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="lt-label sr">Сховати розділи</span></button>
-      </div>
       <!-- ОГЛЯД -->
       <section class="view active" id="view-home">
         <header class="hero">
@@ -115,7 +112,8 @@
         </div>
         <div class="study">
           <div class="study-main">
-            <div class="card-meta"><span id="cardCount">1 / 27</span><div class="card-tools"><button class="btn sm ic-btn mobile-only" id="listBtn" aria-label="Усі розділи" title="Усі розділи"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14M5 12h14M5 17h14"/></svg></button><button class="btn sm ic-btn" id="modeBtn" aria-label="Дві мови поруч" title="Дві мови поруч"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="8" height="14" rx="2"/><rect x="13" y="5" width="8" height="14" rx="2"/></svg></button><button class="btn sm ic-btn" id="flip" aria-label="Перевернути" title="Перевернути (пробіл)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8h12l-3-3"/><path d="M18 16H6l3 3"/></svg></button><button class="btn sm ic-btn" id="mNote" aria-label="Нотатка" title="Нотатка"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l4-1 11-11-3-3L5 16z"/><path d="M14 6l3 3"/></svg></button></div></div>
+            <div class="card-meta"><span id="cardCount">1 / 27</span><div class="card-tools">
+              <button class="hamburger sm desktop-only list-open" id="listOpen" type="button" aria-expanded="false" aria-controls="studyList" title="Показати розділи" aria-label="Показати розділи"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><button class="btn sm ic-btn mobile-only" id="listBtn" aria-label="Усі розділи" title="Усі розділи"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14M5 12h14M5 17h14"/></svg></button><button class="btn sm ic-btn" id="modeBtn" aria-label="Дві мови поруч" title="Дві мови поруч"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="8" height="14" rx="2"/><rect x="13" y="5" width="8" height="14" rx="2"/></svg></button><button class="btn sm ic-btn" id="flip" aria-label="Перевернути" title="Перевернути (пробіл)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8h12l-3-3"/><path d="M18 16H6l3 3"/></svg></button><button class="btn sm ic-btn" id="mNote" aria-label="Нотатка" title="Нотатка"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l4-1 11-11-3-3L5 16z"/><path d="M14 6l3 3"/></svg></button></div></div>
             <div class="card-wrap">
               <div class="card" id="card" role="button" tabindex="0" aria-label="Картка статті. Натисніть, щоб перевернути">
                 <div class="face front"><span class="face-lang" id="frontLang">Українська</span><h3 id="frontTitle"></h3><div class="text" id="frontText"></div></div>
@@ -132,7 +130,7 @@
             </div>
           </div>
           <aside class="study-list" id="studyList" aria-label="Усі розділи">
-            <div class="list-head"><span>Усі розділи</span><span><button class="link" id="shuffle">Перемішати</button> <button class="link mobile-only" id="listClose">Закрити</button></span></div>
+            <div class="list-head"><span>Усі розділи</span><span><button class="link" id="shuffle">Перемішати</button> <button class="link mobile-only" id="listClose">Закрити</button> <button class="hamburger sm desktop-only" id="listToggle" type="button" aria-expanded="true" aria-controls="studyList" title="Сховати розділи"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="lt-label sr">Сховати розділи</span></button></span></div>
             <ol id="artList" class="art-list"></ol>
           </aside>
         </div>
@@ -274,6 +272,6 @@
   <script src="config.js?v=1"></script>
   <script src="articles.js?v=3"></script>
   <script src="avatars/index.js"></script>
-  <script src="app.js?v=19" defer></script>
+  <script src="app.js?v=20" defer></script>
 </body>
 </html>

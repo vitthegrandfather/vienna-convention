@@ -830,12 +830,14 @@
     const lt = $("#listToggle"), t2 = ui.listHidden ? "Показати список розділів" : "Сховати список розділів";
     lt.setAttribute("aria-expanded", String(!ui.listHidden)); lt.title = t2; lt.setAttribute("aria-label", t2); lt.classList.toggle("on", !!ui.listHidden);
     $(".rc-label", rt).textContent = t1; $(".lt-label", lt).textContent = ui.listHidden ? "Показати розділи" : "Сховати розділи"; lt.title = $(".lt-label", lt).textContent; lt.setAttribute("aria-label", t2);
+    const lo = $("#listOpen"); lo.setAttribute("aria-expanded", String(!ui.listHidden)); lo.title = t2; lo.setAttribute("aria-label", t2);
     requestAnimationFrame(fitAll); setTimeout(fitAll, 300);
   }
   function wireLayout() {
     $$(".rail .nav-btn").forEach((b) => { const s = $("span", b); if (s) b.title = s.textContent.trim(); });
     $("#railToggle").addEventListener("click", () => { ui.railCollapsed = !ui.railCollapsed; saveUi(); applyLayout(); });
     $("#listToggle").addEventListener("click", () => { ui.listHidden = !ui.listHidden; saveUi(); applyLayout(); });
+    $("#listOpen").addEventListener("click", () => { ui.listHidden = false; saveUi(); applyLayout(); $("#listToggle").focus(); });
     applyLayout();
   }
   function renderAll() { renderHome(); renderProfile(); applyLook(); if (ui.view === "articles") renderArticles(); if (ui.view === "review") renderReview(); }
