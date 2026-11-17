@@ -834,45 +834,64 @@
     requestAnimationFrame(fitAll); setTimeout(fitAll, 300);
   }
 
-  /* ===== Новорічне радіо (SomaFM Christmas Lounge) ===== */
+  /* ===== Chill-джаз радіо ===== */
   const music = (() => {
-    const SRC = ["https://ice1.somafm.com/christmas-128-mp3", "https://ice2.somafm.com/christmas-128-mp3"];
+    const STATIONS = [
+      { name: "Chill jazz", sub: "Radio Swiss Jazz", src: ["https://stream.srg-ssr.ch/m/rsj/mp3_128"] },
+      { name: "Різдвяний лаунж", sub: "SomaFM · Christmas Lounge", src: ["https://ice1.somafm.com/christmas-128-mp3", "https://ice2.somafm.com/christmas-128-mp3"] }
+    ];
     const KEY = "vienna-v2-music";
-    let st = { on: false, vol: 35 };
+    let st = { on: false, vol: 40, s: 0 };
     try { Object.assign(st, JSON.parse(localStorage.getItem(KEY) || "{}")); } catch {}
+    if (!STATIONS[st.s]) st.s = 0;
     let audio = null, idx = 0, playing = false;
     const save = () => { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch {} };
+    const ICON_PLAY = '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>';
+    const ICON_PAUSE = '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14"/></svg>';
+    const ICON_NEXT = '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5.5v13l8-6.5zM17 5v14"/></svg>';
+    const ICON_VOL = '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5v5h4l5 4v-13l-5 4zM16.5 9a4 4 0 0 1 0 6"/></svg>';
+    const html = (id) => '<div class="mu-top"><button type="button" class="mu-play" aria-label="Увімкнути музику">' + ICON_PLAY + '</button>'
+      + '<div class="mu-text"><b class="mu-name"></b><small class="mu-sub"></small></div>'
+      + '<button type="button" class="mu-next" aria-label="Наступна станція" title="Наступна станція">' + ICON_NEXT + '</button></div>'
+      + '<label class="mu-vol">' + ICON_VOL + '<input type="range" min="0" max="100" step="1" aria-label="Гучність музики" /><output class="mu-pct"></output></label>';
     function paint() {
-      const b = $("#musicBtn"); if (!b) return;
-      b.setAttribute("aria-pressed", String(st.on)); b.classList.toggle("on", st.on);
-      const t = st.on ? "Вимкнути новорічний джаз" : "Увімкнути новорічний джаз";
-      b.title = t; $("#musicLbl").textContent = t;
-      const c = $("#musicOn"); if (c) c.checked = st.on;
-      const v = $("#musicVol"); if (v) v.value = st.vol;
+      const S = STATIONS[st.s];
+      $$(".music").forEach((m) => {
+        m.classList.toggle("on", st.on);
+        const p = $(".mu-play", m); p.innerHTML = st.on ? ICON_PAUSE : ICON_PLAY;
+        const t = st.on ? "Вимкнути музику" : "Увімкнути музику"; p.setAttribute("aria-label", t); p.title = t; p.setAttribute("aria-pressed", String(st.on));
+        $(".mu-name", m).textContent = S.name; $(".mu-sub", m).textContent = S.sub;
+        const r = $("input", m); r.value = st.vol; r.style.setProperty("--p", st.vol + "%"); $(".mu-pct", m).textContent = st.vol + "%";
+      });
     }
     function ensure() {
       if (audio) return audio;
       audio = new Audio(); audio.preload = "none"; audio.volume = st.vol / 100;
       audio.addEventListener("error", () => {
         if (!st.on || !audio.getAttribute("src")) return;
-        if (idx < SRC.length - 1) { idx++; start(); return; }
-        st.on = false; save(); paint(); playing = false; toast("Не вдалося підключити радіо. Спробуй пізніше.");
+        const list = STATIONS[st.s].src;
+        if (idx < list.length - 1) { idx++; start(); return; }
+        st.on = false; save(); paint(); playing = false; toast("Не вдалося підключити радіо. Спробуй іншу станцію.");
       });
       return audio;
     }
     function start() {
-      const a = ensure(); a.src = SRC[idx];
+      const a = ensure(); a.src = STATIONS[st.s].src[idx];
       const p = a.play(); playing = true;
       if (p && p.catch) p.catch(() => { playing = false; });
-      if ("mediaSession" in navigator) navigator.mediaSession.metadata = new MediaMetadata({ title: "Новорічний джаз", artist: "SomaFM · Christmas Lounge" });
+      if ("mediaSession" in navigator) navigator.mediaSession.metadata = new MediaMetadata({ title: STATIONS[st.s].name, artist: STATIONS[st.s].sub });
     }
     function stop() { if (audio) { audio.pause(); audio.removeAttribute("src"); audio.load(); } playing = false; }
     function set(on) { st.on = on; save(); paint(); if (on) { idx = 0; start(); } else stop(); }
+    function next() { st.s = (st.s + 1) % STATIONS.length; save(); paint(); if (st.on) { idx = 0; start(); } }
     function init() {
+      $$(".music").forEach((m) => {
+        m.innerHTML = html();
+        $(".mu-play", m).addEventListener("click", () => set(!st.on));
+        $(".mu-next", m).addEventListener("click", next);
+        $("input", m).addEventListener("input", (e) => { st.vol = +e.target.value; save(); if (audio) audio.volume = st.vol / 100; paint(); });
+      });
       paint();
-      $("#musicBtn").addEventListener("click", () => set(!st.on));
-      $("#musicOn").addEventListener("change", (e) => set(e.target.checked));
-      $("#musicVol").addEventListener("input", (e) => { st.vol = +e.target.value; save(); if (audio) audio.volume = st.vol / 100; });
       if (st.on) {
         const kick = () => { if (st.on && !playing) start(); };
         ["pointerdown", "keydown"].forEach((ev) => document.addEventListener(ev, kick, { once: true }));

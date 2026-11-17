@@ -840,11 +840,37 @@ dialog[open] { position: fixed; inset: 0; margin: auto; max-height: calc(100dvh 
 
 textarea { resize: none; }
 
-.music-btn { margin: 0 auto 10px; }
-.music-btn.on { color: var(--gold); border-color: var(--gold); background: var(--accent-soft); }
-.music-btn.on .ic { animation: musicBob 1.6s ease-in-out infinite; }
-@keyframes musicBob { 50% { transform: translateY(-2px) rotate(-6deg); } }
-.calm .music-btn.on .ic { animation: none; }
-@media (prefers-reduced-motion: reduce) { .music-btn.on .ic { animation: none; } }
-.setting input[type="range"] { width: 140px; accent-color: var(--gold); }
-@media (max-width: 960px) { .music-btn { display: none; } }
+.music { display: grid; gap: 10px; padding: 12px; border: 1px solid var(--line); border-radius: 16px; background: color-mix(in srgb, var(--surface-solid) 72%, transparent); margin-bottom: 12px; }
+.music.on { border-color: color-mix(in srgb, var(--gold) 55%, var(--line)); box-shadow: 0 0 0 1px color-mix(in srgb, var(--gold) 18%, transparent), 0 6px 22px rgba(0,0,0,.22); }
+.mu-top { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.mu-text { display: grid; min-width: 0; flex: 1; line-height: 1.25; }
+.mu-name { font: 700 14px/1.2 var(--sans); color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mu-sub { font-size: 11.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mu-play, .mu-next { flex: none; display: grid; place-items: center; cursor: pointer; border-radius: 50%; color: var(--ink); background: transparent; border: 1px solid var(--line); transition: border-color .15s, background-color .15s, transform .1s; padding: 0; }
+.mu-play { width: 44px; height: 44px; border-color: var(--gold); color: var(--gold); }
+.music.on .mu-play { background: var(--gold); color: #1a1205; }
+.mu-next { width: 36px; height: 36px; }
+.mu-play:hover, .mu-next:hover { border-color: var(--gold); background: var(--accent-soft); }
+.music.on .mu-play:hover { background: var(--gold); }
+.mu-play:active, .mu-next:active { transform: scale(.94); }
+.mu-play .ic { width: 20px; height: 20px; fill: currentColor; stroke: currentColor; stroke-width: 1.6; stroke-linejoin: round; }
+.mu-next .ic { width: 16px; height: 16px; fill: currentColor; stroke: currentColor; stroke-width: 1.8; stroke-linejoin: round; }
+.music.on .mu-play .ic { fill: none; stroke-width: 2.6; stroke-linecap: round; }
+.mu-vol { display: flex; align-items: center; gap: 9px; color: var(--muted); }
+.mu-vol .ic { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.mu-pct { font: 600 11.5px/1 var(--sans); min-width: 34px; text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
+.mu-vol input[type="range"] { -webkit-appearance: none; appearance: none; flex: 1; min-width: 0; height: 24px; background: transparent; cursor: pointer; margin: 0; --p: 40%; }
+.mu-vol input[type="range"]::-webkit-slider-runnable-track { height: 5px; border-radius: 5px; background: linear-gradient(90deg, var(--gold) var(--p), color-mix(in srgb, var(--ink) 18%, transparent) var(--p)); }
+.mu-vol input[type="range"]::-moz-range-track { height: 5px; border-radius: 5px; background: color-mix(in srgb, var(--ink) 18%, transparent); }
+.mu-vol input[type="range"]::-moz-range-progress { height: 5px; border-radius: 5px; background: var(--gold); }
+.mu-vol input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; margin-top: -6.5px; border-radius: 50%; background: var(--gold); border: 2px solid var(--surface-solid); box-shadow: 0 1px 4px rgba(0,0,0,.4); }
+.mu-vol input[type="range"]::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: var(--gold); border: 2px solid var(--surface-solid); }
+.music-set { margin: 6px 0 12px; }
+.rail .music { margin: 0 0 12px; }
+@media (min-width: 961px) {
+  .rail-collapsed .rail .music { padding: 6px; justify-items: center; border-radius: 14px; }
+  .rail-collapsed .rail .music .mu-text, .rail-collapsed .rail .music .mu-next, .rail-collapsed .rail .music .mu-vol { display: none; }
+  .rail-collapsed .rail .music .mu-play { width: 40px; height: 40px; }
+}
+@media (max-width: 960px) { .rail .music { display: none; } }
+@media (prefers-reduced-motion: reduce) { .mu-play, .mu-next { transition: none; } }
