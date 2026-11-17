@@ -833,6 +833,54 @@
     const lo = $("#listOpen"); lo.setAttribute("aria-expanded", String(!ui.listHidden)); lo.title = t2; lo.setAttribute("aria-label", t2);
     requestAnimationFrame(fitAll); setTimeout(fitAll, 300);
   }
+
+  /* ===== Новорічне радіо (SomaFM Christmas Lounge) ===== */
+  const music = (() => {
+    const SRC = ["https://ice1.somafm.com/christmas-128-mp3", "https://ice2.somafm.com/christmas-128-mp3"];
+    const KEY = "vienna-v2-music";
+    let st = { on: false, vol: 35 };
+    try { Object.assign(st, JSON.parse(localStorage.getItem(KEY) || "{}")); } catch {}
+    let audio = null, idx = 0, playing = false;
+    const save = () => { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch {} };
+    function paint() {
+      const b = $("#musicBtn"); if (!b) return;
+      b.setAttribute("aria-pressed", String(st.on)); b.classList.toggle("on", st.on);
+      const t = st.on ? "Вимкнути новорічний джаз" : "Увімкнути новорічний джаз";
+      b.title = t; $("#musicLbl").textContent = t;
+      const c = $("#musicOn"); if (c) c.checked = st.on;
+      const v = $("#musicVol"); if (v) v.value = st.vol;
+    }
+    function ensure() {
+      if (audio) return audio;
+      audio = new Audio(); audio.preload = "none"; audio.volume = st.vol / 100;
+      audio.addEventListener("error", () => {
+        if (!st.on || !audio.getAttribute("src")) return;
+        if (idx < SRC.length - 1) { idx++; start(); return; }
+        st.on = false; save(); paint(); playing = false; toast("Не вдалося підключити радіо. Спробуй пізніше.");
+      });
+      return audio;
+    }
+    function start() {
+      const a = ensure(); a.src = SRC[idx];
+      const p = a.play(); playing = true;
+      if (p && p.catch) p.catch(() => { playing = false; });
+      if ("mediaSession" in navigator) navigator.mediaSession.metadata = new MediaMetadata({ title: "Новорічний джаз", artist: "SomaFM · Christmas Lounge" });
+    }
+    function stop() { if (audio) { audio.pause(); audio.removeAttribute("src"); audio.load(); } playing = false; }
+    function set(on) { st.on = on; save(); paint(); if (on) { idx = 0; start(); } else stop(); }
+    function init() {
+      paint();
+      $("#musicBtn").addEventListener("click", () => set(!st.on));
+      $("#musicOn").addEventListener("change", (e) => set(e.target.checked));
+      $("#musicVol").addEventListener("input", (e) => { st.vol = +e.target.value; save(); if (audio) audio.volume = st.vol / 100; });
+      if (st.on) {
+        const kick = () => { if (st.on && !playing) start(); };
+        ["pointerdown", "keydown"].forEach((ev) => document.addEventListener(ev, kick, { once: true }));
+      }
+    }
+    return { init };
+  })();
+
   function wireLayout() {
     $$(".rail .nav-btn").forEach((b) => { const s = $("span", b); if (s) b.title = s.textContent.trim(); });
     $("#railToggle").addEventListener("click", () => { ui.railCollapsed = !ui.railCollapsed; saveUi(); applyLayout(); });
@@ -847,7 +895,7 @@
     document.fonts?.ready.then(fitAll);
     const syncFolds = () => { const desk = matchMedia("(min-width: 961px)").matches; $$("details.fold").forEach((d) => (d.open = desk || d.hasAttribute("data-open-mobile"))); };
     syncFolds(); matchMedia("(min-width: 961px)").addEventListener("change", syncFolds);
-    paintIcons(); wireLayout(); wireNav(); wireArticles(); wireReview(); wireProfile();
+    paintIcons(); music.init(); wireLayout(); wireNav(); wireArticles(); wireReview(); wireProfile();
     $("#rankRefresh").addEventListener("click", loadBoard);
     $("#uvBack").addEventListener("click", () => show("ranking"));
     if (ui.n != null && byN[ui.n]) { const i = list().indexOf(ui.n); idx = i >= 0 ? i : 0; }

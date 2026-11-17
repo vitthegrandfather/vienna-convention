@@ -839,3 +839,12 @@ html:not([data-view="articles"]) .hb-right { visibility: hidden; }
 dialog[open] { position: fixed; inset: 0; margin: auto; max-height: calc(100dvh - 28px); overflow: auto; }
 
 textarea { resize: none; }
+
+.music-btn { margin: 0 auto 10px; }
+.music-btn.on { color: var(--gold); border-color: var(--gold); background: var(--accent-soft); }
+.music-btn.on .ic { animation: musicBob 1.6s ease-in-out infinite; }
+@keyframes musicBob { 50% { transform: translateY(-2px) rotate(-6deg); } }
+.calm .music-btn.on .ic { animation: none; }
+@media (prefers-reduced-motion: reduce) { .music-btn.on .ic { animation: none; } }
+.setting input[type="range"] { width: 140px; accent-color: var(--gold); }
+@media (max-width: 960px) { .music-btn { display: none; } }
