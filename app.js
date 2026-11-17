@@ -189,7 +189,9 @@
   let toastTimer;
   function toast(msg) {
     const t = $("#toast"); t.textContent = msg; t.hidden = false;
-    clearTimeout(toastTimer); toastTimer = setTimeout(() => (t.hidden = true), 3200);
+    clearTimeout(toastTimer); clearTimeout(toast.hideT);
+    requestAnimationFrame(() => requestAnimationFrame(() => t.classList.add("in")));
+    toastTimer = setTimeout(() => { t.classList.remove("in"); toast.hideT = setTimeout(() => (t.hidden = true), 300); }, 3200);
   }
   function checkAch() {
     ACH.forEach(([id, name, , , cur, goal]) => {
@@ -480,7 +482,9 @@
   const displayName = () => state.name || cloud.profileName || "Гість";
   function applyTheme(t) {
     if (!THEMES.some((x) => x[0] === t)) t = "light";
-    document.documentElement.dataset.theme = t; state.theme = t;
+    const R = document.documentElement;
+    if (R.dataset.theme && R.dataset.theme !== t) { R.classList.add("theme-fade"); clearTimeout(applyTheme.ft); applyTheme.ft = setTimeout(() => R.classList.remove("theme-fade"), 600); }
+    R.dataset.theme = t; state.theme = t;
     try { localStorage.setItem(THEME_KEY, t); } catch {}
     $("meta[name=theme-color]").content = THEMES.find((x) => x[0] === t)[3];
   }

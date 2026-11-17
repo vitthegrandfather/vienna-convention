@@ -919,3 +919,101 @@ input[type=range], input[type=checkbox] { caret-color: transparent; -webkit-user
   .list-hidden .study-list { display: flex; opacity: 0; visibility: hidden; pointer-events: none; transform: translateX(24px); }
 }
 @media (prefers-reduced-motion: reduce) { .study, .study-list { transition: none !important; } }
+
+/* ===== єдиний шар анімацій ===== */
+:root { --ease-out: cubic-bezier(.22, .8, .24, 1); interpolate-size: allow-keywords; }
+
+/* плавна зміна теми */
+html.theme-fade, html.theme-fade *, html.theme-fade *::before, html.theme-fade *::after {
+  transition: background-color .45s ease, color .45s ease, border-color .45s ease, box-shadow .45s ease, fill .45s ease, stroke .45s ease !important;
+}
+
+/* поява елементів при відкритті розділу */
+@keyframes rise { from { opacity: 0; transform: translateY(12px); } }
+.view.active .stat, .view.active .route, .view.active .panel, .view.active .ach-item { animation: rise .45s var(--ease-out) backwards; }
+.view.active .stats > .stat:nth-child(1) { animation-delay: 0ms; }
+.view.active .stats > .stat:nth-child(2) { animation-delay: 60ms; }
+.view.active .stats > .stat:nth-child(3) { animation-delay: 120ms; }
+.view.active .stats > .stat:nth-child(4) { animation-delay: 180ms; }
+.view.active > .panel:nth-child(1) { animation-delay: 0ms; }
+.view.active > .panel:nth-child(2) { animation-delay: 70ms; }
+.view.active > .panel:nth-child(3) { animation-delay: 140ms; }
+.view.active > .panel:nth-child(4) { animation-delay: 210ms; }
+.view.active > .panel:nth-child(5) { animation-delay: 280ms; }
+.view.active > .panel:nth-child(6) { animation-delay: 350ms; }
+.view.active .ach > .ach-item:nth-child(1) { animation-delay: 0ms; }
+.view.active .ach > .ach-item:nth-child(2) { animation-delay: 25ms; }
+.view.active .ach > .ach-item:nth-child(3) { animation-delay: 50ms; }
+.view.active .ach > .ach-item:nth-child(4) { animation-delay: 75ms; }
+.view.active .ach > .ach-item:nth-child(5) { animation-delay: 100ms; }
+.view.active .ach > .ach-item:nth-child(6) { animation-delay: 125ms; }
+.view.active .ach > .ach-item:nth-child(7) { animation-delay: 150ms; }
+.view.active .ach > .ach-item:nth-child(8) { animation-delay: 175ms; }
+.view.active .ach > .ach-item:nth-child(9) { animation-delay: 200ms; }
+.view.active .ach > .ach-item:nth-child(10) { animation-delay: 225ms; }
+.view.active .ach > .ach-item:nth-child(11) { animation-delay: 250ms; }
+.view.active .ach > .ach-item:nth-child(12) { animation-delay: 275ms; }
+.rk-row { transition: opacity .45s var(--ease-out), transform .45s var(--ease-out), box-shadow .15s ease; }
+@starting-style { .rk-row { opacity: 0; transform: translateY(14px); } }
+.rk-row:nth-child(1) { transition-delay: 0ms; }
+.rk-row:nth-child(2) { transition-delay: 45ms; }
+.rk-row:nth-child(3) { transition-delay: 90ms; }
+.rk-row:nth-child(4) { transition-delay: 135ms; }
+.rk-row:nth-child(5) { transition-delay: 180ms; }
+.rk-row:nth-child(6) { transition-delay: 225ms; }
+.rk-row:nth-child(7) { transition-delay: 270ms; }
+.rk-row:nth-child(8) { transition-delay: 315ms; }
+.rk-row:nth-child(9) { transition-delay: 360ms; }
+.rk-row:nth-child(10) { transition-delay: 405ms; }
+#studyList li { animation: rise .35s var(--ease-out) backwards; }
+#studyList li:nth-child(1) { animation-delay: 0ms; }
+#studyList li:nth-child(2) { animation-delay: 18ms; }
+#studyList li:nth-child(3) { animation-delay: 36ms; }
+#studyList li:nth-child(4) { animation-delay: 54ms; }
+#studyList li:nth-child(5) { animation-delay: 72ms; }
+#studyList li:nth-child(6) { animation-delay: 90ms; }
+#studyList li:nth-child(7) { animation-delay: 108ms; }
+#studyList li:nth-child(8) { animation-delay: 126ms; }
+#studyList li:nth-child(9) { animation-delay: 144ms; }
+#studyList li:nth-child(10) { animation-delay: 162ms; }
+#studyList li:nth-child(11) { animation-delay: 180ms; }
+#studyList li:nth-child(12) { animation-delay: 198ms; }
+
+/* діалоги: м'яка поява і зникнення */
+dialog { opacity: 0; transform: translateY(14px) scale(.97); transition: opacity .22s ease, transform .28s var(--ease-out), overlay .28s allow-discrete, display .28s allow-discrete; }
+dialog[open] { opacity: 1; transform: none; }
+@starting-style { dialog[open] { opacity: 0; transform: translateY(14px) scale(.97); } }
+dialog::backdrop { opacity: 0; transition: opacity .28s ease, overlay .28s allow-discrete, display .28s allow-discrete; }
+dialog[open]::backdrop { opacity: 1; }
+@starting-style { dialog[open]::backdrop { opacity: 0; } }
+
+/* спливаюче повідомлення */
+.toast { opacity: 0; transform: translate(-50%, 14px); transition: opacity .25s ease, transform .3s var(--ease-out); }
+.toast.in { opacity: 1; transform: translateX(-50%); }
+
+/* розкривні блоки (телефон) */
+details.fold::details-content { block-size: 0; overflow: clip; transition: block-size .3s var(--ease-out), content-visibility .3s allow-discrete; }
+details.fold[open]::details-content { block-size: auto; }
+
+/* дрібні інтерактивні переходи */
+.nav-btn { transition: background-color .18s ease, color .18s ease, transform .12s ease; }
+.nav-btn:active { transform: scale(.97); }
+.chip { transition: background-color .18s ease, color .18s ease, border-color .18s ease, transform .12s ease; }
+.chip:active { transform: scale(.95); }
+.btn:active { transform: scale(.97); }
+.theme-card, .accent-dot, #studyList li button { transition: background-color .18s ease, border-color .18s ease, box-shadow .18s ease, transform .15s var(--ease-out); }
+.theme-card:active, .accent-dot:active { transform: scale(.95); }
+.ach-item { transition: opacity .3s ease, border-color .3s ease; }
+.stat, .route { transition: border-color .2s ease; }
+@media (hover: hover) {
+  .accent-dot:hover { transform: scale(1.12); }
+  .theme-card:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--accent) 55%, var(--line)); }
+  #studyList li button:hover { transform: translateX(3px); }
+  .rk-row[role="button"]:hover { transform: translateY(-2px); }
+}
+
+/* повага до «зменшити рух» і спокійного режиму */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition-duration: .01ms !important; transition-delay: 0s !important; }
+}
+.calm *, .calm *::before, .calm *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition-duration: .01ms !important; transition-delay: 0s !important; }
