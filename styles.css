@@ -682,3 +682,51 @@ html { scroll-padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px)); }
 :root[data-theme="light"] { --ok: #1f7a4a; --warn: #b8420f; }
 
 @media (pointer: coarse), (max-width: 960px) { .seg button { min-block-size: 44px; min-inline-size: 52px; } }
+
+/* ===== стримані кнопки: скло, золота нитка, без «іграшкових» ефектів ===== */
+.btn { box-shadow: none; }
+.btn:hover { border-color: color-mix(in srgb, var(--gold) 65%, transparent); }
+.btn:active { transform: scale(.98); box-shadow: none; }
+.btn.primary { border: 1px solid color-mix(in srgb, var(--accent) 60%, #fff); background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 88%, #fff), var(--accent)); box-shadow: 0 6px 18px color-mix(in srgb, var(--accent) 26%, transparent); }
+.btn.primary:active { transform: scale(.98); box-shadow: 0 2px 8px color-mix(in srgb, var(--accent) 22%, transparent); }
+.chip { border: 1px solid var(--line); }
+.chip.active { border-color: var(--accent); background: var(--accent); color: var(--accent-ink); box-shadow: none; }
+.nav-btn.active { outline: none; }
+.controls { padding-top: 6px; gap: 10px; }
+.controls .btn.ic-btn:not(.big), .controls #mHard, .controls #mReview, .controls #prev, .controls #next {
+  flex: 0 0 54px; width: 54px; height: 54px; border-radius: 50%; padding: 0; position: relative; transform-origin: 50% 50%;
+  color: var(--ink); background: color-mix(in srgb, var(--surface-solid) 82%, transparent);
+  border: 1px solid color-mix(in srgb, var(--gold) 55%, transparent); outline: none; outline-offset: 0; animation: none;
+  box-shadow: 0 6px 18px rgba(0,0,0,.16), inset 0 1px 0 rgba(255,255,255,.08);
+  transition: transform .15s ease, border-color .15s ease, background-color .15s ease, color .15s ease;
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+}
+.controls .btn.ic-btn:not(.big) .ic { width: 22px; height: 22px; stroke-width: 2; filter: none; }
+.controls .btn.ic-btn:not(.big):hover { animation: none; transform: translateY(-1px); border-color: var(--gold); background: color-mix(in srgb, var(--gold) 14%, var(--surface-solid)); }
+.controls .btn.ic-btn:not(.big):active { transform: scale(.95); box-shadow: none; }
+.controls #mHard { color: var(--warn); } .controls #mReview { color: color-mix(in srgb, var(--ink) 45%, #6bb6ff); }
+.controls #mHard.on { color: var(--warn); border-color: var(--warn); background: color-mix(in srgb, var(--warn) 22%, var(--surface-solid)); box-shadow: 0 6px 18px rgba(0,0,0,.16); }
+.controls #mReview.on { color: #6bb6ff; border-color: #6bb6ff; background: color-mix(in srgb, #6bb6ff 20%, var(--surface-solid)); box-shadow: 0 6px 18px rgba(0,0,0,.16); }
+.controls .btn.ic-btn.big, .controls #mLearned {
+  flex: 1.6; height: 54px; border-radius: 27px; border: 1px solid color-mix(in srgb, var(--accent) 60%, #fff); outline: none; -webkit-mask: none; mask: none;
+  color: var(--accent-ink); background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 88%, #fff), var(--accent));
+  box-shadow: 0 8px 22px color-mix(in srgb, var(--accent) 28%, transparent);
+}
+.controls #mLearned:active { transform: scale(.98); box-shadow: 0 2px 8px color-mix(in srgb, var(--accent) 24%, transparent); }
+.controls #mLearned .ic { width: 26px; height: 26px; stroke-width: 2.8; filter: none; }
+.controls #mLearned.done { color: color-mix(in srgb, var(--bg) 92%, #000); border-color: color-mix(in srgb, var(--ok) 60%, #fff); outline: none;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--ok) 85%, #fff), var(--ok)); box-shadow: 0 8px 22px color-mix(in srgb, var(--ok) 26%, transparent); }
+.btn.sm.ic-btn, :root[data-theme="xmas"] .btn.sm.ic-btn { width: 40px; height: 40px; border-radius: 50%; color: var(--muted); background: transparent; border: 1px solid var(--line); box-shadow: none; outline: none; }
+.btn.sm.ic-btn:hover { color: var(--ink); border-color: var(--gold); }
+.btn.sm.ic-btn:active { transform: scale(.94); box-shadow: none; }
+.btn.sm.ic-btn.on, #mNote.on, :root[data-theme="xmas"] .btn.sm.ic-btn.on { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); box-shadow: none; }
+@media (max-width: 960px) {
+  .controls .btn.ic-btn:not(.big), .controls #mHard, .controls #mReview, .controls #prev, .controls #next { flex: 0 0 50px; width: 50px; height: 50px; border-radius: 50%; }
+  .controls .btn.ic-btn.big, .controls #mLearned { flex: 1 1 auto; height: 50px; border-radius: 25px; }
+  .btn.sm.ic-btn, :root[data-theme="xmas"] .btn.sm.ic-btn { width: 44px; height: 44px; }
+  /* нижнє меню на телефоні — лише іконки (підписи залишаються для скрінрідерів) */
+  .bottom-nav .nav-btn { position: relative; min-height: 52px; justify-content: center; }
+  .bottom-nav .nav-btn span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
+  .bottom-nav .nav-btn i svg { width: 26px; height: 26px; }
+  .bottom-nav .nav-btn.active { border-radius: 18px; }
+}
