@@ -851,7 +851,7 @@
     const ICON_NEXT = '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5.5v13l8-6.5zM17 5v14"/></svg>';
     const ICON_VOL = '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5v5h4l5 4v-13l-5 4zM16.5 9a4 4 0 0 1 0 6"/></svg>';
     const html = (id) => '<div class="mu-top"><button type="button" class="mu-play" aria-label="Увімкнути музику">' + ICON_PLAY + '</button>'
-      + '<div class="mu-text"><b class="mu-name"></b><small class="mu-sub"></small></div>'
+      + '<div class="mu-text"><span class="mu-line"><i class="mu-eq" aria-hidden="true"><s></s><s></s><s></s></i><b class="mu-name"></b></span><small class="mu-sub"></small></div>'
       + '<button type="button" class="mu-next" aria-label="Наступна станція" title="Наступна станція">' + ICON_NEXT + '</button></div>'
       + '<label class="mu-vol">' + ICON_VOL + '<input type="range" min="0" max="100" step="1" aria-label="Гучність музики" /><output class="mu-pct"></output></label>';
     function paint() {
