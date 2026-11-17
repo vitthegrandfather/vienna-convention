@@ -42,7 +42,7 @@
   const blank = () => ({
     learned: [], hard: [], review: [], notes: {}, learnedAt: {}, nextReview: {}, reviewLevel: {},
     studyDates: [], reviewsDone: 0, ach: [], name: "", germanFirst: false, snow: null, updatedAt: 0,
-    motto: "", avatar: { kind: "letter" }, accent: null, textScale: 1, theme: null, created: 0, cardStyle: "frost", garland: true,
+    motto: "", avatar: { kind: "letter" }, accent: null, textScale: 1, theme: null, created: 0, cardStyle: "frost", garland: true, flags: [],
   });
   function mergeStates(local, remote) {
     const remoteNewer = (remote.updatedAt || 0) > (local.updatedAt || 0);
@@ -51,6 +51,7 @@
     s.notes = Object.assign({}, older.notes, newer.notes);
     s.studyDates = [...new Set([...local.studyDates, ...remote.studyDates])];
     s.ach = [...new Set([...local.ach, ...remote.ach])];
+    s.flags = [...new Set([...local.flags, ...remote.flags])];
     s.reviewsDone = Math.max(local.reviewsDone, remote.reviewsDone);
     s.name = local.name || remote.name; s.snow = local.snow; s.germanFirst = local.germanFirst;
     s.motto = local.motto || remote.motto;
@@ -62,7 +63,7 @@
   }
   function normalize(raw) {
     const s = Object.assign(blank(), raw && typeof raw === "object" ? raw : {});
-    ["learned", "hard", "review", "studyDates", "ach"].forEach((k) => { if (!Array.isArray(s[k])) s[k] = []; });
+    ["learned", "hard", "review", "studyDates", "ach", "flags"].forEach((k) => { if (!Array.isArray(s[k])) s[k] = []; });
     ["notes", "learnedAt", "nextReview", "reviewLevel"].forEach((k) => { if (!s[k] || typeof s[k] !== "object") s[k] = {}; });
     s.name = String(s.name || "").slice(0, 40);
     s.motto = String(s.motto || "").slice(0, 80);
@@ -100,20 +101,74 @@
   const isDue = (n) => has("review", n) || (has("learned", n) && (state.nextReview[n] || 0) <= Date.now());
   const dueList = () => ARTS.filter((a) => isDue(a.n)).map((a) => a.n);
 
+  const perDay = () => { const m = {}; Object.values(state.learnedAt).forEach((t) => { const k = dayKey(t); m[k] = (m[k] || 0) + 1; }); return Math.max(0, ...Object.values(m)); };
+  const noteCount = () => Object.values(state.notes).filter(Boolean).length;
   const ACH = [
-    ["first", "Перший крок", "Вивчити 1 статтю", "✦", () => state.learned.length, 1],
-    ["a5", "Гарний початок", "Вивчити 5 статей", "☀", () => state.learned.length, 5],
-    ["a10", "Десятка", "Вивчити 10 статей", "Ⅹ", () => state.learned.length, 10],
-    ["a20", "Майже посол", "Вивчити 20 статей", "◆", () => state.learned.length, 20],
-    ["all", "Хранитель конвенції", "Вивчити всі 27 розділів", "♛", () => state.learned.length, TOTAL],
-    ["r1", "Друга зустріч", "Перше повторення", "↻", () => state.reviewsDone, 1],
-    ["r10", "Пам'ять міцнішає", "10 повторень", "❄", () => state.reviewsDone, 10],
-    ["s3", "Тримаю темп", "3 дні поспіль", "Ⅲ", streak, 3],
-    ["s7", "Тиждень сили", "7 днів поспіль", "7", streak, 7],
-    ["h1", "Слабке місце", "Позначити складну статтю", "!", () => state.hard.length, 1],
-    ["n1", "Власна думка", "Створити нотатку", "✎", () => Object.values(state.notes).filter(Boolean).length, 1],
-    ["d10", "Дисципліна", "Вчитися 10 різних днів", "10", () => state.studyDates.length, 10],
+    ["first", "Перша іграшка", "Вивчити 1 статтю", "✦", () => state.learned.length, 1, "Вивчення"],
+    ["a5", "Гірлянда запалена", "Вивчити 5 статей", "☀", () => state.learned.length, 5, "Вивчення"],
+    ["a10", "Десятка", "Вивчити 10 статей", "Ⅹ", () => state.learned.length, 10, "Вивчення"],
+    ["a14", "Півдороги", "Вивчити 14 розділів", "◐", () => state.learned.length, 14, "Вивчення"],
+    ["a20", "Майже посол", "Вивчити 20 статей", "◆", () => state.learned.length, 20, "Вивчення"],
+    ["a25", "Один крок до мети", "Вивчити 25 розділів", "▲", () => state.learned.length, 25, "Вивчення"],
+    ["all", "Хранитель конвенції", "Вивчити всі 27 розділів", "♛", () => state.learned.length, TOTAL, "Вивчення"],
+    ["art0", "Преамбула в кишені", "Вивчити преамбулу", "§", () => (has("learned", 0) ? 1 : 0), 1, "Знавець статей"],
+    ["art4", "Агреман отримано", "Вивчити статтю 4 (Агреман)", "4", () => (has("learned", 4) ? 1 : 0), 1, "Знавець статей"],
+    ["art9", "Persona non grata", "Вивчити статтю 9", "9", () => (has("learned", 9) ? 1 : 0), 1, "Знавець статей"],
+    ["art14", "Три класи", "Вивчити статтю 14 (класи глав)", "14", () => (has("learned", 14) ? 1 : 0), 1, "Знавець статей"],
+    ["art20", "Прапор над місією", "Вивчити статтю 20", "20", () => (has("learned", 20) ? 1 : 0), 1, "Знавець статей"],
+    ["art41", "Закони поважаємо", "Вивчити статтю 41", "41", () => (has("learned", 41) ? 1 : 0), 1, "Знавець статей"],
+    ["art49", "Ратифіковано", "Вивчити статтю 49", "49", () => (has("learned", 49) ? 1 : 0), 1, "Знавець статей"],
+    ["day3", "Марафон", "Вивчити 3 статті за один день", "3×", perDay, 3, "Темп"],
+    ["day5", "Спринтер", "Вивчити 5 статей за один день", "5×", perDay, 5, "Темп"],
+    ["r1", "Друга зустріч", "Перше повторення", "↻", () => state.reviewsDone, 1, "Повторення"],
+    ["r10", "Пам'ять міцнішає", "10 повторень", "❄", () => state.reviewsDone, 10, "Повторення"],
+    ["r25", "Без прогалин", "25 повторень", "◎", () => state.reviewsDone, 25, "Повторення"],
+    ["r50", "Майстер повторень", "50 повторень", "50", () => state.reviewsDone, 50, "Повторення"],
+    ["r100", "Залізна пам'ять", "100 повторень", "100", () => state.reviewsDone, 100, "Повторення"],
+    ["clean", "Чиста черга", "Пройти всю чергу повторення", "✓", () => (state.flags.includes("clean") ? 1 : 0), 1, "Повторення"],
+    ["s3", "Тримаю темп", "3 дні поспіль", "Ⅲ", streak, 3, "Постійність"],
+    ["s7", "Тиждень сили", "7 днів поспіль", "7", streak, 7, "Постійність"],
+    ["s14", "Залізна звичка", "14 днів поспіль", "⚡", streak, 14, "Постійність"],
+    ["s30", "Місяць поспіль", "30 днів поспіль", "30", streak, 30, "Постійність"],
+    ["d5", "Постійний студент", "Вчитися 5 різних днів", "5", () => state.studyDates.length, 5, "Постійність"],
+    ["d10", "Дисципліна", "Вчитися 10 різних днів", "10", () => state.studyDates.length, 10, "Постійність"],
+    ["d20", "Двадцять днів", "Вчитися 20 різних днів", "20", () => state.studyDates.length, 20, "Постійність"],
+    ["d30", "Тридцять днів", "Вчитися 30 різних днів", "30", () => state.studyDates.length, 30, "Постійність"],
+    ["h1", "Слабке місце", "Позначити складну статтю", "!", () => state.hard.length, 1, "Нотатки і складні"],
+    ["h5", "Чесний із собою", "Позначити 5 складних статей", "!!", () => state.hard.length, 5, "Нотатки і складні"],
+    ["hardwin", "Складну здолано", "Вивчити статтю, яку позначили складною", "⚑", () => state.hard.filter((n) => has("learned", n)).length, 1, "Нотатки і складні"],
+    ["n1", "Власна думка", "Створити нотатку", "✎", noteCount, 1, "Нотатки і складні"],
+    ["n5", "Конспектувальник", "Створити 5 нотаток", "▤", noteCount, 5, "Нотатки і складні"],
+    ["n10", "Особистий щоденник", "Створити 10 нотаток", "▦", noteCount, 10, "Нотатки і складні"],
+    ["avatar", "З обличчям", "Обрати аватарку", "☺", () => (state.avatar.kind !== "letter" ? 1 : 0), 1, "Оформлення"],
+    ["motto", "Власне гасло", "Написати девіз у профілі", "❝", () => (state.motto.trim() ? 1 : 0), 1, "Оформлення"],
+    ["accent", "Мій колір", "Обрати акцентний колір", "◉", () => (state.accent ? 1 : 0), 1, "Оформлення"],
+    ["cardstyle", "Стиліст", "Змінити оформлення картки в рейтингу", "▣", () => (state.cardStyle !== "frost" ? 1 : 0), 1, "Оформлення"],
+    ["theme", "Модник", "Змінити тему сайту", "◑", () => (state.flags.includes("theme") ? 1 : 0), 1, "Оформлення"],
+    ["rk1", "Аташе", "Дослужитися до рангу «Аташе»", "♘", xp, 30, "Ранги"],
+    ["rk5", "Радник", "Дослужитися до рангу «Радник»", "♝", xp, 330, "Ранги"],
+    ["rk6", "Повноважний посол", "Дослужитися до найвищого рангу", "♚", xp, 420, "Ранги"],
+    ["dec19", "Святий Миколай", "Повчитися 19 грудня", "🎁", () => (state.studyDates.some((d) => d.endsWith("-12-19")) ? 1 : 0), 1, "Святкові"],
+    ["dec24", "Святвечір", "Повчитися 24 грудня", "★", () => (state.studyDates.some((d) => d.endsWith("-12-24")) ? 1 : 0), 1, "Святкові"],
+    ["dec25", "Різдво", "Повчитися 25 грудня", "🔔", () => (state.studyDates.some((d) => d.endsWith("-12-25")) ? 1 : 0), 1, "Святкові"],
+    ["dec31", "Новорічна ніч", "Повчитися 31 грудня або 1 січня", "🎆", () => (state.studyDates.some((d) => d.endsWith("-12-31") || d.endsWith("-01-01")) ? 1 : 0), 1, "Святкові"],
+    ["owl", "Нічна сова", "Повчитися вночі (00:00–05:00)", "☾", () => (state.flags.includes("owl") ? 1 : 0), 1, "Святкові"],
+    ["lark", "Рання пташка", "Повчитися зранку (05:00–08:00)", "☼", () => (state.flags.includes("lark") ? 1 : 0), 1, "Святкові"],
   ];
+  function fillAch(box, doneSet, withProgress) {
+    box.textContent = ""; let lastGroup = "";
+    ACH.forEach(([id, name, desc, ico, cur, goal, group]) => {
+      if (group !== lastGroup) { const h = document.createElement("p"); h.className = "ach-group"; h.textContent = group; box.appendChild(h); lastGroup = group; }
+      const done = doneSet.has(id), c = withProgress ? Math.min(cur(), goal) : 0, bar = withProgress && !done && goal > 1, d = document.createElement("div");
+      d.className = "ach-item" + (done ? " done" : ""); d.tabIndex = 0; d.setAttribute("role", "button");
+      d.innerHTML = '<span class="ach-ico"></span><span><b></b><small></small></span>' + (bar ? '<span class="ach-bar"><i></i></span>' : "");
+      $(".ach-ico", d).textContent = ico; $("b", d).textContent = name; $("small", d).textContent = bar ? `${desc} · ${c}/${goal}` : desc;
+      if (bar) $(".ach-bar i", d).style.width = (c / goal) * 100 + "%";
+      const say = () => toast(`${name} — ${desc}${done ? " ✓" : bar ? ` (${c}/${goal})` : ""}`);
+      d.addEventListener("click", say); d.addEventListener("keydown", (e) => { if (e.key === "Enter") say(); });
+      box.appendChild(d);
+    });
+  }
 
   // святкове конфеті з зірочок і сніжинок
   function burst(el) {
@@ -141,6 +196,7 @@
   }
   function save(action = true) {
     if (action && !state.studyDates.includes(dayKey())) state.studyDates.push(dayKey());
+    if (action) { const h = new Date().getHours(), f = h < 5 ? "owl" : h >= 5 && h < 8 ? "lark" : null; if (f && !state.flags.includes(f)) state.flags.push(f); }
     checkAch(); state.updatedAt = Date.now();
     try { localStorage.setItem(KEY, JSON.stringify(state)); } catch {}
     renderAll(); queueCloud();
@@ -279,6 +335,8 @@
     if (filter === "todo") { unflip($("#card")); renderArticles(); } else if (!wasLast) go(1);
   }
   const closeList = () => $("#studyList").classList.remove("open");
+  // відкрити статтю в режимі карток (з чужого профілю)
+  function openArticle(n) { filter = "all"; idx = Math.max(0, list().indexOf(n)); unflip($("#card")); show("articles"); }
   function wireArticles() {
     $("#card").addEventListener("click", () => flipCard($("#card")));
     $("#flip").addEventListener("click", () => flipCard($("#card")));
@@ -343,7 +401,7 @@
       state.reviewLevel[n] = lv; state.nextReview[n] = Date.now() + INTERVALS[Math.min(lv, INTERVALS.length - 1)] * DAY;
       setFlag("review", n, false); state.reviewsDone++; burst($("#rvKnow"));
       unflip($("#rvCard")); save(); if (ri >= rq.length) ri = 0; renderReview();
-      if (!rq.length) toast("Черга пройдена");
+      if (!rq.length) { toast("Черга пройдена"); if (!state.flags.includes("clean")) { state.flags.push("clean"); save(false); } }
     });
   }
 
@@ -375,15 +433,7 @@
       $("#planMain").textContent = `${target} ${plural(target, "стаття", "статті", "статей")} на день`;
       $("#planSub").textContent = `Сьогодні: ${todayDone} · лишилось ${remaining} · ≈ ${perWeek} на тиждень`;
     }
-    $("#achGrid").textContent = "";
-    ACH.forEach(([id, name, desc, ico, cur, goal]) => {
-      const done = state.ach.includes(id), d = document.createElement("div");
-      d.className = "ach-item" + (done ? " done" : "");
-      d.innerHTML = '<span class="ach-ico"></span><span><b></b><small></small></span>';
-      $(".ach-ico", d).textContent = ico; $("b", d).textContent = name;
-      $("small", d).textContent = done ? desc : `${desc} · ${Math.min(cur(), goal)}/${goal}`;
-      $("#achGrid").appendChild(d);
-    });
+    fillAch($("#achGrid"), new Set(state.ach), true);
   }
   function tick() {
     const left = Math.max(0, DEADLINE - Date.now()), p = (n, l = 2) => String(n).padStart(l, "0");
@@ -530,7 +580,7 @@
     $("#profileBtn").addEventListener("click", () => show("profile"));
     $("#pfNameIn").addEventListener("input", (e) => { state.name = e.target.value.slice(0, 40); save(false); });
     $("#pfMottoIn").addEventListener("input", (e) => { state.motto = e.target.value.slice(0, 80); save(false); });
-    $("#themeGrid").addEventListener("click", (e) => { const b = e.target.closest(".theme-card"); if (!b) return; applyTheme(b.dataset.t); save(false); renderProfilePage(); });
+    $("#themeGrid").addEventListener("click", (e) => { const b = e.target.closest(".theme-card"); if (!b) return; applyTheme(b.dataset.t); if (!state.flags.includes("theme")) state.flags.push("theme"); save(false); renderProfilePage(); });
     $("#accentGrid").addEventListener("click", (e) => { const b = e.target.closest(".accent-dot"); if (!b) return; state.accent = b.dataset.c || null; applyLook(); save(false); });
     $("#scaleSeg").addEventListener("click", (e) => { const b = e.target.closest("button"); if (!b) return; state.textScale = Number(b.dataset.s); applyLook(); save(false); requestAnimationFrame(fitAll); });
     $("#avatarGrid").addEventListener("click", (e) => {
@@ -707,18 +757,15 @@
       ["З нами з", ps?.created ? new Date(Number(ps.created)).toLocaleDateString("uk-UA", { day: "numeric", month: "long" }) : "—"]];
     const sb = $("#uvStats"); sb.textContent = "";
     tiles.forEach(([l, v]) => { const d = document.createElement("div"); d.className = "pf-stat"; d.innerHTML = "<span></span><b></b>"; $("span", d).textContent = l; $("b", d).textContent = v; sb.appendChild(d); });
-    const ag = $("#uvAch"); ag.textContent = "";
-    ACH.forEach(([id, label, desc, ico]) => {
-      const done = ach.includes(id), d = document.createElement("div"); d.className = "ach-item" + (done ? " done" : "");
-      d.innerHTML = '<span class="ach-ico"></span><span><b></b><small></small></span>'; $(".ach-ico", d).textContent = ico; $("b", d).textContent = label; $("small", d).textContent = desc; ag.appendChild(d);
-    });
+    fillAch($("#uvAch"), new Set(ach), false);
     const ar = $("#uvArts"); ar.textContent = "";
-    if (!learned) { $("#uvArtCount").textContent = ""; ar.textContent = "Список статей з'явиться, коли учасник знову відкриє сайт."; ar.className = "uv-arts muted"; return; }
+    if (!learned) { $("#uvArtCount").textContent = ""; ar.textContent = "Статті цього учасника ще не збережені в рейтингу. Вони з'являться після його першого входу в оновлену версію сайту — бути онлайн під час вашого перегляду не потрібно."; ar.className = "uv-arts muted"; return; }
     ar.className = "uv-arts"; $("#uvArtCount").textContent = `· вивчено ${learned.length} з ${TOTAL}`;
     ARTS.forEach((a) => {
-      const d = document.createElement("div"), ok = learned.includes(a.n), hd = hard.includes(a.n);
+      const d = document.createElement("button"), ok = learned.includes(a.n), hd = hard.includes(a.n); d.type = "button";
       d.className = "uv-art" + (ok ? " ok" : "") + (hd ? " hard" : ""); d.innerHTML = "<b></b><span></span>";
       $("b", d).textContent = a.n === 0 ? "§" : a.n; $("span", d).textContent = a.tu; d.title = (ok ? "Вивчена" : "Не вивчена") + (hd ? ", складна" : "");
+      d.addEventListener("click", () => openArticle(a.n));
       ar.appendChild(d);
     });
   }
@@ -775,6 +822,8 @@
     applyTheme(document.documentElement.dataset.theme || "light"); applyLook();
     let fitTimer; addEventListener("resize", () => { clearTimeout(fitTimer); fitTimer = setTimeout(fitAll, 120); });
     document.fonts?.ready.then(fitAll);
+    const syncFolds = () => { const desk = matchMedia("(min-width: 961px)").matches; $$("details.fold").forEach((d) => (d.open = desk || d.hasAttribute("data-open-mobile"))); };
+    syncFolds(); matchMedia("(min-width: 961px)").addEventListener("change", syncFolds);
     paintIcons(); wireNav(); wireArticles(); wireReview(); wireProfile();
     $("#rankRefresh").addEventListener("click", loadBoard);
     $("#uvBack").addEventListener("click", () => show("ranking"));
