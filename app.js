@@ -837,14 +837,24 @@
   /* ===== Chill-джаз радіо ===== */
   const music = (() => {
     const STATIONS = [
+      { name: "Мікс", sub: "Різні станції навмання", mix: true },
       { name: "Chill jazz", sub: "Radio Swiss Jazz", src: ["https://stream.srg-ssr.ch/m/rsj/mp3_128"] },
-      { name: "Різдвяний лаунж", sub: "SomaFM · Christmas Lounge", src: ["https://ice1.somafm.com/christmas-128-mp3", "https://ice2.somafm.com/christmas-128-mp3"] }
+      { name: "Різдвяний лаунж", sub: "SomaFM · Christmas Lounge", src: ["https://ice1.somafm.com/christmas-128-mp3", "https://ice2.somafm.com/christmas-128-mp3"] },
+      { name: "Xmas in Frisko", sub: "SomaFM · святковий мікс", src: ["https://ice1.somafm.com/xmasinfrisko-128-mp3", "https://ice2.somafm.com/xmasinfrisko-128-mp3"] },
+      { name: "Jolly Ol' Soul", sub: "SomaFM · святковий соул", src: ["https://ice1.somafm.com/jollysoul-128-mp3", "https://ice2.somafm.com/jollysoul-128-mp3"] }
     ];
     const KEY = "vienna-v2-music";
-    let st = { on: false, vol: 40, s: 0 };
+    let st = { on: false, vol: 40, s: 0, last: 1 };
     try { Object.assign(st, JSON.parse(localStorage.getItem(KEY) || "{}")); } catch {}
     if (!STATIONS[st.s]) st.s = 0;
-    let audio = null, idx = 0, playing = false;
+    let audio = null, idx = 0, playing = false, cur = st.s || 1, tries = 0;
+    // реальна станція: у режимі «Мікс» — випадкова, не та, що була востаннє
+    function pick() {
+      idx = 0;
+      if (st.s !== 0) { cur = st.s; return; }
+      const pool = []; for (let i = 1; i < STATIONS.length; i++) if (i !== st.last) pool.push(i);
+      cur = pool[Math.floor(Math.random() * pool.length)]; st.last = cur; save();
+    }
     const save = () => { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch {} };
     const ICON_PLAY = '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>';
     const ICON_PAUSE = '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14"/></svg>';
@@ -860,7 +870,7 @@
         m.classList.toggle("on", st.on);
         const p = $(".mu-play", m); p.innerHTML = st.on ? ICON_PAUSE : ICON_PLAY;
         const t = st.on ? "Вимкнути музику" : "Увімкнути музику"; p.setAttribute("aria-label", t); p.title = t; p.setAttribute("aria-pressed", String(st.on));
-        $(".mu-name", m).textContent = S.name; $(".mu-sub", m).textContent = S.sub;
+        $(".mu-name", m).textContent = S.name; $(".mu-sub", m).textContent = S.mix && st.on ? "Зараз: " + STATIONS[cur].name : S.sub;
         const r = $("input", m); r.value = st.vol; r.style.setProperty("--p", st.vol + "%"); $(".mu-pct", m).textContent = st.vol + "%";
       });
     }
@@ -869,21 +879,22 @@
       audio = new Audio(); audio.preload = "none"; audio.volume = st.vol / 100;
       audio.addEventListener("error", () => {
         if (!st.on || !audio.getAttribute("src")) return;
-        const list = STATIONS[st.s].src;
+        const list = STATIONS[cur].src;
         if (idx < list.length - 1) { idx++; start(); return; }
+        if (st.s === 0 && ++tries < 3) { pick(); paint(); start(); return; }
         st.on = false; save(); paint(); playing = false; toast("Не вдалося підключити радіо. Спробуй іншу станцію.");
       });
       return audio;
     }
     function start() {
-      const a = ensure(); a.src = STATIONS[st.s].src[idx];
+      const a = ensure(); a.src = STATIONS[cur].src[idx];
       const p = a.play(); playing = true;
       if (p && p.catch) p.catch(() => { playing = false; });
-      if ("mediaSession" in navigator) navigator.mediaSession.metadata = new MediaMetadata({ title: STATIONS[st.s].name, artist: STATIONS[st.s].sub });
+      if ("mediaSession" in navigator) navigator.mediaSession.metadata = new MediaMetadata({ title: STATIONS[cur].name, artist: STATIONS[cur].sub });
     }
     function stop() { if (audio) { audio.pause(); audio.removeAttribute("src"); audio.load(); } playing = false; }
-    function set(on) { st.on = on; save(); paint(); if (on) { idx = 0; start(); } else stop(); }
-    function next() { st.s = (st.s + 1) % STATIONS.length; save(); paint(); if (st.on) { idx = 0; start(); } }
+    function set(on) { st.on = on; tries = 0; if (on) pick(); save(); paint(); if (on) start(); else stop(); }
+    function next() { st.s = (st.s + 1) % STATIONS.length; tries = 0; if (st.on) pick(); save(); paint(); if (st.on) start(); }
     function init() {
       $$(".music").forEach((m) => {
         m.innerHTML = html();
@@ -893,7 +904,7 @@
       });
       paint();
       if (st.on) {
-        const kick = () => { if (st.on && !playing) start(); };
+        const kick = () => { if (st.on && !playing) { tries = 0; pick(); paint(); start(); } };
         ["pointerdown", "keydown"].forEach((ev) => document.addEventListener(ev, kick, { once: true }));
       }
     }
