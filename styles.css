@@ -835,3 +835,5 @@ html:not([data-view="articles"]) .hb-right { visibility: hidden; }
 .rail .brand > div { min-width: 0; }
 .rail .brand-eyebrow { letter-spacing: .04em; font-size: 10px; white-space: nowrap; }
 .rail .brand-title { white-space: normal; font-size: 20px; line-height: 1.05; }
+
+dialog[open] { position: fixed; inset: 0; margin: auto; max-height: calc(100dvh - 28px); overflow: auto; }
