@@ -15,9 +15,11 @@
     } catch (e) {}
   </script>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='32' fill='%23241b46'/%3E%3Cpath d='M32 9l5.6 13.4 14.4 1.2-11 9.4 3.4 14L32 39.2 19.6 47l3.4-14-11-9.4 14.4-1.2z' fill='%23f6c453'/%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+  <link rel="preconnect" href="https://xwdxfbgazlplyiglzecm.supabase.co" crossorigin />
   <link rel="preload" href="fonts/cormorant-cyrillic-700.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="fonts/inter-cyrillic.woff2" as="font" type="font/woff2" crossorigin />
-  <link rel="stylesheet" href="styles.css?v=41" />
+  <link rel="stylesheet" href="styles.css?v=42" />
 </head>
 <body>
   <canvas id="snow" aria-hidden="true"></canvas>
@@ -31,7 +33,7 @@
         <span class="brand-mark" aria-hidden="true">❄</span>
         <div>
           <div class="brand-eyebrow">Мова фаху · 1961</div>
-          <div class="brand-title">Wiener Konvention</div>
+          <div class="brand-title" translate="no">Wiener Konvention</div>
         </div>
         <button class="hamburger sm" id="railToggle" type="button" aria-expanded="true" aria-controls="main" title="Згорнути меню"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="rc-label sr">Згорнути меню</span></button>
       </div>
@@ -160,7 +162,7 @@
           <h3>Оформлення моєї картки</h3>
           <div class="cs-chips" id="csChips"></div>
         </section>
-        <div class="rk-list" id="rankBody"></div>
+        <div class="rk-list" id="rankBody" aria-live="polite"></div>
       </section>
 
       <!-- ПРОФІЛЬ УЧАСНИКА -->
@@ -222,8 +224,8 @@
           <div class="pf-col">
             <details class="panel fold"><summary><span class="fold-title">Про мене</span></summary>
               <div class="form">
-                <label class="field">Ім'я<input type="text" id="pfNameIn" maxlength="40" placeholder="Як вас звати?" autocomplete="nickname" /></label>
-                <label class="field">Девіз<input type="text" id="pfMottoIn" maxlength="80" placeholder="Наприклад: «Pacta sunt servanda»" /></label>
+                <label class="field">Ім'я<input type="text" id="pfNameIn" name="display-name" maxlength="40" spellcheck="false" placeholder="Як вас звати?" autocomplete="nickname" /></label>
+                <label class="field">Девіз<input type="text" id="pfMottoIn" name="motto" maxlength="80" autocomplete="off" placeholder="Наприклад: «Pacta sunt servanda»" /></label>
               </div>
               <h4>Аватарка</h4>
               <div class="av-grid" id="avatarGrid"></div>
@@ -282,10 +284,10 @@
 
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.min.js" integrity="sha384-JBR+x8blGwjDRO63aHCGiZMD4VNiTR4ZUGA+N6ZKLf3zNt1fK8IBpcgPaMrxqWBp" crossorigin="anonymous" defer></script>
   <script src="config.js?v=1"></script>
   <script src="articles.js?v=3"></script>
   <script src="avatars/index.js"></script>
-  <script src="app.js?v=29" defer></script>
+  <script src="app.js?v=30" defer></script>
 </body>
 </html>

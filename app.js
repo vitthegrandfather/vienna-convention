@@ -630,6 +630,15 @@
   async function onSession(session) {
     cloud.user = session?.user || null;
     if (!cloud.user) { cloud.profileName = ""; renderProfile(); return; }
+    // інший акаунт на цьому ж пристрої: не переносимо чужий локальний прогрес
+    try {
+      const last = localStorage.getItem("vienna-v2-uid");
+      if (last && last !== cloud.user.id) {
+        const fresh = normalize({});
+        ["learned", "hard", "learnedAt", "notes", "ach", "studyDates", "reviewsDone", "flags", "name", "motto", "avatar", "cardStyle", "created", "due", "reviews"].forEach((k) => { if (k in fresh) state[k] = fresh[k]; });
+      }
+      localStorage.setItem("vienna-v2-uid", cloud.user.id);
+    } catch {}
     cloud.profileName = cloud.user.user_metadata?.display_name || state.name || "";
     if (!state.name && cloud.profileName) state.name = cloud.profileName;
     const { data, error } = await cloud.client.from("v2_study_progress").select("state").eq("user_id", cloud.user.id).maybeSingle();
@@ -637,13 +646,15 @@
       state = mergeStates(state, normalize(data.state));
       try { localStorage.setItem(KEY, JSON.stringify(state)); } catch {}
     }
+    // не перезаписуємо хмарний прогрес, якщо його не вдалося прочитати
+    if (error) { console.error("progress read", error); toast("Не вдалося синхронізувати прогрес. Онови сторінку"); renderAll(); return; }
     renderAll(); saveCloud();
   }
   function queueCloud() { if (!cloud.user) return; clearTimeout(cloud.timer); cloud.timer = setTimeout(saveCloud, 600); }
   async function saveCloud() {
     if (!cloud.user || !cloud.client) return;
     const stamp = new Date().toISOString();
-    await cloud.client.from("v2_study_progress").upsert({ user_id: cloud.user.id, state, updated_at: stamp }, { onConflict: "user_id" });
+    { const { error: pe } = await cloud.client.from("v2_study_progress").upsert({ user_id: cloud.user.id, state, updated_at: stamp }, { onConflict: "user_id" }); if (pe) console.error("progress save", pe); }
     const name = (state.name || cloud.profileName || "").trim();
     if (!name) return;
     const base = {
@@ -657,6 +668,8 @@
     for (const row of [{ ...mid, public_stats: pub }, mid, base]) {
       const { error } = await cloud.client.from("v2_group_profiles").upsert(row, { onConflict: "user_id" });
       if (!error) break;
+      // спрощуємо набір колонок лише коли колонки ще немає в базі; інші помилки не маскуємо
+      if (error.code !== "42703" && error.code !== "PGRST204") { console.error("profile save", error); break; }
     }
   }
   function renderAuthBox() {
@@ -721,13 +734,13 @@
     if (!cloud.client) return renderBoardLocal();
     if (!cloud.user) { body.innerHTML = '<div><p>Увійдіть, щоб побачити рейтинг групи й потрапити до нього.</p><div class="row" style="margin-top:12px"><button class="btn primary" id="rkLogin">Увійти або зареєструватися</button></div></div>'; $("#rkLogin").addEventListener("click", () => show("profile")); return; }
     body.innerHTML = "<div>Завантажую…</div>";
-    const q = (cols) => cloud.client.from("v2_group_profiles").select(cols).order("learned_count", { ascending: false }).order("xp", { ascending: false });
+    const q = (cols) => cloud.client.from("v2_group_profiles").select(cols).order("learned_count", { ascending: false }).order("xp", { ascending: false }).order("user_id").limit(100);
     const base = "user_id,display_name,learned_count,hard_count,streak,xp";
     let data = null, error = null;
     for (const cols of [base + ",motto,avatar,avatar_photo,card_style,public_stats", base + ",motto,avatar,avatar_photo,card_style", base]) {
       ({ data, error } = await q(cols)); if (!error) break;
     }
-    if (error) { body.innerHTML = '<div><p class="err">Не вдалося завантажити рейтинг. Перевірте, що виконано supabase-v2.sql.</p><p class="muted" style="margin-top:8px"></p></div>'; $("p.muted", body).textContent = `Деталі: ${error.code || ""} ${error.message || ""}`; console.error("ranking", error); return; }
+    if (error) { body.innerHTML = '<div><p class="err">Не вдалося завантажити рейтинг. Перевір інтернет і натисни «Оновити».</p><p class="muted" style="margin-top:8px"></p></div>'; $("p.muted", body).textContent = `Деталі: ${error.code || ""} ${error.message || ""}`; console.error("ranking", error); return; }
     body.textContent = "";
     if (!data.length) { body.innerHTML = "<div>Поки що нікого. Вивчіть першу статтю — і ви тут!</div>"; return; }
     data.forEach((r, i) => {
